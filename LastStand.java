@@ -11,6 +11,7 @@ import java.math.*;
 import java.awt.Graphics;
 import java.awt.geom.AffineTransform;
 import java.awt.image.AffineTransformOp;
+import java.awt.image.ImageObserver;
 
 public class LastStand extends JFrame {
 	GamePanel game;
@@ -660,7 +661,6 @@ class GamePanel extends JPanel implements KeyListener, MouseListener, ActionList
 			repaint();
 		}
 
-
 		g.drawImage(ship2, 317, 820, this);
 		if (levelFinish) {
 			makeEnemies();
@@ -668,11 +668,13 @@ class GamePanel extends JPanel implements KeyListener, MouseListener, ActionList
 		g.setFont(menuFont);
 		g.setColor(Color.white);
 
+		/*
 		testerBoss.move();
 		g.drawString(testerBoss.getValue(),testerBoss.getX(),testerBoss.getY());
 		testerBoss.attack();
-
 		testerBoss.moveAttack();
+		*/
+		
 		for (Bullet n : bullets){
 			g.drawString(Character.toString(n.getLetter()),n.getX(),n.getY());
 		}
@@ -744,7 +746,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener, ActionList
 			g.drawLine(activeTarget.getX() + 29, activeTarget.getY() + 29, activeTarget.getX() + 29, activeTarget.getY() + 29);
 			if (activeTarget.getValue().equals("") && activeTarget.getAttacks().isEmpty()) {// if we finished typing that enemies word
 				while(activeTarget.getDead()==false){
-					activeTarget.explode(g);
+					activeTarget.explode(g, this);
 				}
 				score += activeTarget.getScore() * level;
 				enemies[enemySlot].remove(activeTarget);
@@ -1087,8 +1089,8 @@ class GamePanel extends JPanel implements KeyListener, MouseListener, ActionList
 }
 
 class Base {
-	protected double x;
-	protected double y;
+	protected int x;
+	protected int y;
 	public Rectangle hitbox = new Rectangle((int) x, (int) y, 5, 5);
 
 	public int getX() {
@@ -1248,9 +1250,9 @@ class enemy extends Base {
 		value = value.substring(1);
 	}
 
-	public void explode(Graphics g){
+	public void explode(Graphics g, ImageObserver i){
 		frameRate+=0.25;
-		g.drawImage(explosion[(int)frameRate],x,y,this);
+		g.drawImage(explosion[(int)frameRate] ,x, y, i );
 		if ((int)frameRate==13){
 			dead=true;
 		}
