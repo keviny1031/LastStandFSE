@@ -37,7 +37,6 @@ public class LastStand extends JFrame {
 class GamePanel extends JPanel implements KeyListener, MouseListener, ActionListener, MouseMotionListener {
 	private JFrame frame;
 	private String username, typedValue, screen = "menu";
-
 	private boolean[] keys;
 	private Image[] backgrounds = new Image[1];
 	private button[] buttons = new button[4];
@@ -74,15 +73,13 @@ class GamePanel extends JPanel implements KeyListener, MouseListener, ActionList
 	final Timer timer;
 	@SuppressWarnings("unchecked")
 
-	private int level = 1, bombRad, filledEnemies;
-	private int targetRad=100;
+	private int level = 2, bombRad, filledEnemies;
+	private int targetRad = 100;
 	private boolean levelFinish = false, bombing;
-	private int bombs = 3, emps = 200;
+	private int emps = 2;
 
-
-	boolean newTarget=false;
-	private bigBoss testerBoss = new bigBoss("Amaaaaaaazing", 0,0);
-
+	boolean newTarget = false;
+	private bigBoss testerBoss = new bigBoss("Amaaaaaaazing", 0, 0);
 
 	// stats
 	private int wrong = 0;// wrong
@@ -102,11 +99,14 @@ class GamePanel extends JPanel implements KeyListener, MouseListener, ActionList
 		keys = new boolean[KeyEvent.KEY_LAST + 1];
 		logo = new ImageIcon("logo.png").getImage();
 		ship1 = new ImageIcon("ship1.gif").getImage();
-		ship2 = new ImageIcon("ship2.gif").getImage();
+		ship2 = new ImageIcon("C:\\Users\\kkyyh\\eclipse-workspace\\School 17-18\\src\\FSE\\images\\sprites\\ship2.gif")
+				.getImage();
 		ship3 = new ImageIcon("ship3.gif").getImage();
-		ship4 = new ImageIcon("ship4.gif").getImage();
+		ship4 = new ImageIcon("C:\\Users\\kkyyh\\eclipse-workspace\\School 17-18\\src\\FSE\\images\\sprites\\ship4.gif")
+				.getImage();
 		ship5 = new ImageIcon("ship5.gif").getImage();
-		shot2 = new ImageIcon("shot2.png").getImage();
+		shot2 = new ImageIcon("C:\\Users\\kkyyh\\eclipse-workspace\\School 17-18\\src\\FSE\\images\\sprites\\shot2.png")
+				.getImage();
 		initEnemies();
 		addKeyListener(this);
 		addMouseListener(this);
@@ -119,7 +119,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener, ActionList
 					JOptionPane.QUESTION_MESSAGE);
 	}
 
-	////////////////////Making Enemies///////////////////
+	//////////////////// Making Enemies///////////////////
 
 	public boolean isAlpha(String name) {
 		char[] chars = name.toCharArray();
@@ -175,7 +175,8 @@ class GamePanel extends JPanel implements KeyListener, MouseListener, ActionList
 		}
 
 		Scanner stdin = new Scanner(System.in);
-		Scanner inFile = new Scanner(new BufferedReader(new FileReader("words.txt")));
+		Scanner inFile = new Scanner(new BufferedReader(
+				new FileReader("C:\\Users\\kkyyh\\eclipse-workspace\\School 17-18\\src\\FSE\\files\\words.txt")));
 		while (inFile.hasNextLine()) {
 			String word = inFile.nextLine();
 			if (isAlpha(word)) {
@@ -520,7 +521,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener, ActionList
 		levelFinish = false;
 	}
 
-	/////////////////////////Stars////////////////////////////
+	///////////////////////// Stars////////////////////////////
 
 	public double[][] genScrollStars(int max) {
 		double[][] stars = new double[max][];
@@ -561,7 +562,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener, ActionList
 		}
 	}
 
-	//////////////////////Graphics/////////////////////////
+	////////////////////// Graphics/////////////////////////
 
 	public void paintComponent(Graphics g) {
 		super.paintComponent(g);
@@ -604,7 +605,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener, ActionList
 	}
 
 	public void game(Graphics g) {
-		//System.out.println(levelCounter + " Wrong: " + levelWrong);
+		// System.out.println(levelCounter + " Wrong: " + levelWrong);
 		Graphics2D g2 = (Graphics2D) g;
 		int total = 0;
 		requestFocusInWindow();
@@ -612,7 +613,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener, ActionList
 		g.fillRect(0, 0, 700, 930);
 		moveStars(starList, g);
 		if (bombing) {
-			bombRad ++;
+			bombRad++;
 			empRad.setRad(bombRad);
 			drawBomb(g, bombRad);
 			checkRad();
@@ -623,7 +624,6 @@ class GamePanel extends JPanel implements KeyListener, MouseListener, ActionList
 			repaint();
 		}
 
-
 		g.drawImage(ship2, 317, 820, this);
 		if (levelFinish) {
 			makeEnemies();
@@ -631,32 +631,21 @@ class GamePanel extends JPanel implements KeyListener, MouseListener, ActionList
 		g.setFont(menuFont);
 		g.setColor(Color.white);
 
-		testerBoss.move();
-		g.drawString(testerBoss.getValue(),testerBoss.getX(),testerBoss.getY());
-		testerBoss.attack();
+		//testerBoss.move();
+		//g.drawString(testerBoss.getValue(), testerBoss.getX(), testerBoss.getY());
+		//testerBoss.attack();
 
-		testerBoss.moveAttack();
-		for (Bullet n : bullets){
-			g.drawString(Character.toString(n.getLetter()),n.getX(),n.getY());
+		//testerBoss.moveAttack();
+		for (Bullet n : bullets) {
+			g.drawString(Character.toString(n.getLetter()), n.getX(), n.getY());
 		}
 
 		for (int i = 0; i < 26; i++) {
 			LinkedList<enemy> current = enemies[i];
 			for (enemy n : current) {
-				//total++;
+				// total++;
 				n.move();
 			}
-		}
-
-		if (newTarget){
-			targetRad--;
-			target.setRad(targetRad);
-			drawTarget(g,targetRad);
-			if (targetRad==0){
-				newTarget=false;
-				targetRad=100;
-			}
-
 		}
 
 		for (Iterator<attack> it = b.iterator(); it.hasNext();) {
@@ -664,26 +653,36 @@ class GamePanel extends JPanel implements KeyListener, MouseListener, ActionList
 			attack.move();
 			if (attack.check()) {
 				it.remove();
-				activeTarget.getAttacks().remove(attack);
+				attack.getOwner().getAttacks().remove(attack);
 			}
 		}
 
 		if (activeTarget != null) {
+			if (newTarget) {
+				targetRad--;
+				target.setRad(targetRad);
+				drawTarget(g, targetRad, activeTarget);
+				if (targetRad == 0) {
+					newTarget = false;
+					targetRad = 100;
+				}
+			}
 			g.setColor(Color.red);
-			g.drawLine(activeTarget.getX() + 29, activeTarget.getY() + 29, activeTarget.getX() + 29, activeTarget.getY() + 29);
-			if (activeTarget.getValue().equals("") && activeTarget.getAttacks().isEmpty()) {// if we finished typing that enemies word
+			g.drawLine(activeTarget.getX() + 29, activeTarget.getY() + 29, activeTarget.getX() + 29,
+					activeTarget.getY() + 29);
+			
+			if (activeTarget.getValue().equals("")) {// if we finished typing that enemies word
+				// "chewbacca"
 				dead.add(activeTarget);
 				score += activeTarget.getScore() * level;
-				enemies[enemySlot].remove(activeTarget);
 				activeTarget = null;
 			}
 		}
 
-		for (attack current : b){
-			g.drawImage(shot2,current.getX(),current.getY(),this);
+		for (attack current : b) {
+			g.drawImage(shot2, current.getX(), current.getY(), this);
 		}
-
-
+		/*
 		for (int i = 0; i < 26; i++) {
 			LinkedList<enemy> current = enemies[i];
 			for (enemy n : current) {
@@ -691,35 +690,36 @@ class GamePanel extends JPanel implements KeyListener, MouseListener, ActionList
 				double locX = n.getImage().getWidth(this) / 2;
 				double locY = n.getImage().getHeight(this) / 2;
 				AffineTransform tx = AffineTransform.getRotateInstance(rotation, locX, locY);
-				g2.drawImage(ship4, tx, null);
+				g2.drawImage(ship4, tx, this);
 			}
 		}
+		*/
 		g.setFont(text);
 		for (int i = 0; i < 26; i++) {
 			LinkedList<enemy> current = enemies[i];
 			for (enemy n : current) {
-				g.drawImage(ship4,n.getX(),n.getY(),this);
+				g.drawImage(ship4, n.getX(), n.getY(), this);
 				g.setColor(Color.black);
-				g.fillRect(n.getX(),n.getY()+20, n.getValue().length()*23, 20);
+				g.fillRect(n.getX(), n.getY() + 20, n.getValue().length() * 23, 20);
 				g.setColor(Color.white);
-				g.drawString(n.getValue(), n.getX()+4, n.getY()+35);
-
+				g.drawString(n.getValue(), n.getX() + 4, n.getY() + 35);
 			}
 		}
 
-		for (enemy n : dead){
-			explode(g,n);
-		}
-		for (enemy n : dead){
-			if (n.getDead()){
-				dead.remove(n);
-			}
+		for (Iterator<enemy> it = dead.iterator(); it.hasNext();) {
+			enemy n = it.next();
+			if (n.getAttacks().isEmpty())
+				explode(g, n);
 		}
 
+		/*
+		 * for (Iterator<enemy> it = current.iterator(); it.hasNext();) { enemy n =
+		 * it.next(); if (empRad.contains((n.getX() + 29), (n.getY() + 29)) && bombing)
+		 * { if (n.equals(activeTarget)) activeTarget = null; it.remove(); } }
+		 */
 		if (activeTarget != null) {
 			g.setColor(Color.red);
-			g.drawRect(activeTarget.getX() + 29, activeTarget.getY() + 29, 10, 10);
-			g.drawString(activeTarget.getValue(),activeTarget.getX()+4,activeTarget.getY()+35);
+			g.drawString(activeTarget.getValue(), activeTarget.getX() + 4, activeTarget.getY() + 35);
 		}
 
 		g.setColor(Color.white);
@@ -733,45 +733,43 @@ class GamePanel extends JPanel implements KeyListener, MouseListener, ActionList
 			bombing = false;
 			bombRad = 0;
 			emps = 2;
-			bombs = 3;
+			dead = new ArrayList<enemy>();
 			levelFinish = true;
 			level += 1;
 			screen = "next";
 		}
 	}
 
-    public void next(Graphics g) {
-        String levelStats = "LEVEL "+level;
+	public void next(Graphics g) {
+		String levelStats = "LEVEL " + level;
 
-        String gameHeader =  "Game Stats                        Accuracy";
-        String gameLine = "__";
-        String gameStats = round(((double)(counter-wrong) / counter) * 100, 2) + "%";
+		String gameHeader = "Game Stats                        Accuracy";
+		String gameLine = "__";
+		String gameStats = round(((double) (counter - wrong) / counter) * 100, 2) + "%";
 
-        g.setColor(Color.black);
-        g.fillRect(0, 0, 700, 930);
-        g.setColor(Color.white);
-        g.setFont(menuFont);
-        //g.drawString(levelHeader, 50, 50);
-        g.drawString(levelStats, 50, 100);
-        g.drawString(gameHeader, 50, 140);
-        g.drawString(gameLine, 50, 160);
-        g.drawString(gameStats, 50, 190);
+		g.setColor(Color.black);
+		g.fillRect(0, 0, 700, 930);
+		g.setColor(Color.white);
+		g.setFont(menuFont);
+		// g.drawString(levelHeader, 50, 50);
+		g.drawString(levelStats, 50, 100);
+		g.drawString(gameHeader, 50, 140);
+		g.drawString(gameLine, 50, 160);
+		g.drawString(gameStats, 50, 190);
 
-        g.fillRect(220, 450, 280, 60);
-        g.setColor(Color.black);
-        g.drawString("NEXT LEVEL", 240, 495);
-    }
+		g.fillRect(220, 450, 280, 60);
+		g.setColor(Color.black);
+		g.drawString("NEXT LEVEL", 240, 495);
+	}
 
 	public void drawBomb(Graphics g, int rad) {
 		g.setColor(Color.white);
-		System.out.println(rad);
-		//System.out.println(rad);
 		g.drawOval(350 - rad, 850 - rad, rad * 2, rad * 2);
 	}
 
-	public void drawTarget(Graphics g, int rad){
+	public void drawTarget(Graphics g, int rad, enemy e) {
 		g.setColor(Color.orange);
-		g.drawOval(activeTarget.getX() - rad + 28 , activeTarget.getY() - rad + 28, rad * 2, rad * 2);
+		g.drawOval(e.getX() - rad + 28, e.getY() - rad + 28, rad * 2, rad * 2);
 	}
 
 	public void instructions(Graphics g) {
@@ -784,16 +782,20 @@ class GamePanel extends JPanel implements KeyListener, MouseListener, ActionList
 		g.fillRect(0, 0, 700, 930);
 	}
 
-
-	public void explode(Graphics g, enemy n){
+	public void explode(Graphics g, enemy n) {
 		Image[] explosion = n.getPics();
 		n.addFrame();
-		g.drawImage(explosion[n.getFrame()],n.getX()-28,n.getY()-28,this);
-		if (n.getFrame()==13){
-			n.setDead();
+		g.drawImage(explosion[n.getFrame()], n.getX() - 28, n.getY() - 28, this);
+		if (n.getFrame() == 5) {
+			for (int i = 0; i < 26; i++) {
+				LinkedList<enemy> current = enemies[i];
+				if(current.contains(n)) {
+					current.remove(n);
+				}
+			}
 		}
 	}
-	//////////////////////Math and Logic Functions//////////////////////
+	////////////////////// Math and Logic Functions//////////////////////
 
 	public double getAngle(int x, int y) {
 		double diffx = 350 - x;
@@ -817,15 +819,16 @@ class GamePanel extends JPanel implements KeyListener, MouseListener, ActionList
 	}
 
 	public static double round(double value, int places) {
-        if (places < 0) throw new IllegalArgumentException();
+		if (places < 0)
+			throw new IllegalArgumentException();
 
-        long factor = (long) Math.pow(10, places);
-        value = value * factor;
-        long tmp = Math.round(value);
-        return (double) tmp / factor;
-    }
+		long factor = (long) Math.pow(10, places);
+		value = value * factor;
+		long tmp = Math.round(value);
+		return (double) tmp / factor;
+	}
 
-    public enemy getLowest(LinkedList<enemy> n) {
+	public enemy getLowest(LinkedList<enemy> n) {
 		int max = 0;
 		enemy checker = null;
 		for (enemy check : n) {
@@ -865,15 +868,10 @@ class GamePanel extends JPanel implements KeyListener, MouseListener, ActionList
 			else if (!enemies[slot].isEmpty()) {// if there's an enemy that starts with this character
 				// System.out.println("Herro");
 				activeTarget = getLowest(enemies[slot]);// getting the enemy that is the closest
-				if (activeTarget.getY()>0){
-					if (activeTarget.getX()<700 && activeTarget.getX()>0){
-						typing(n); //used later when im deleting and reorganizing
+				if (activeTarget.getY() > 20 && activeTarget.getX() < 700 && activeTarget.getX() > 0) {
+						typing(n); // used later when im deleting and reorganizing
 						enemySlot = slot;//
-						newTarget=true;
-					}
-				}
-				else{
-					activeTarget=null;
+						newTarget = true;
 				}
 			}
 
@@ -893,17 +891,17 @@ class GamePanel extends JPanel implements KeyListener, MouseListener, ActionList
 			}
 
 			else {
-				//newTarget=false;
-				if (activeTarget.getValue().charAt(0) == n) { //java.lang.StringIndexOutOfBoundsException
-					attack newAttack = new attack(activeTarget.getX()+29,activeTarget.getY()+58);
+				// newTarget=false;
+				if (activeTarget.getValue().charAt(0) == n) { // java.lang.StringIndexOutOfBoundsException
+					attack newAttack = new attack(activeTarget.getX() + 29, activeTarget.getY() + 58);
+					newAttack.setOwner(activeTarget);
 					b.add(newAttack);
 					activeTarget.addAttack(newAttack);
 					activeTarget.remove();// removes first letter
 					counter++;
-						// score
-						// target(n);
-					}
-				 else {
+					// score
+					// target(n);
+				} else {
 					// counter++;
 					wrong++;
 					levelWrong++;
@@ -912,25 +910,25 @@ class GamePanel extends JPanel implements KeyListener, MouseListener, ActionList
 		}
 	}
 
-	///////////////////////KeyPressed,Interactions////////////////////////
+	/////////////////////// KeyPressed,Interactions////////////////////////
 
 	public void keyPressed(KeyEvent e) {
 		if (screen == "Play Game") {
-			//inScreenCount=0;
+			// inScreenCount=0;
 			counter++;
 			levelCounter++;
-			boolean inScreen=false;
+			boolean inScreen = false;
 			for (int i = 0; i < 26; i++) {
 				LinkedList<enemy> current = enemies[i];
 				for (enemy x : current) {
-					if (x.getY()>0){
-						if (x.getX()>0 && x.getX()<700){
-							inScreen=true;
+					if (x.getY() > 0) {
+						if (x.getX() > 0 && x.getX() < 700) {
+							inScreen = true;
 						}
 					}
 				}
 			}
-			if (inScreen){
+			if (inScreen) {
 				if (e.getKeyCode() == KeyEvent.VK_A) {
 					typing('a');
 				}
@@ -1080,8 +1078,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener, ActionList
 	}
 }
 
-
-///////////////////////////Classes//////////////////////////
+/////////////////////////// Classes//////////////////////////
 
 class Base {
 	protected double x;
@@ -1113,6 +1110,7 @@ class Bullet extends Base {
 	private char letter;
 	private int destX, destY;
 	private double rad, dx, dy;
+	private enemy owner;
 
 	public char getLetter() {
 		return letter;
@@ -1121,8 +1119,8 @@ class Bullet extends Base {
 	public Bullet(char n, int x, int y, int destX, int destY) {
 		super(x, y);
 		letter = n;
-		this.destX=destX;
-		this.destY=destY;
+		this.destX = destX;
+		this.destY = destY;
 		double diffx = destX - x;
 		double diffy = destY - y;
 		rad = Math.atan(diffx / diffy);
@@ -1135,16 +1133,26 @@ class Bullet extends Base {
 			translate(dx, dy);
 		}
 	}
+
+	public enemy getOwner() {
+		return owner;
+	}
+
+	public void setOwner(enemy owner) {
+		this.owner = owner;
+	}
+
 }
 
 class attack extends Base {
 	double rad, dx, dy;
-	int destx,desty;
+	int destx, desty;
+	enemy owner;
 
-	public attack(int x, int y){
-		super(317+29,800);
-		this.destx=x;
-		this.desty=y;
+	public attack(int x, int y) {
+		super(317 + 29, 800);
+		this.destx = x;
+		this.desty = y;
 		double diffx = 346 - x;
 		double diffy = 800 - y;
 		rad = Math.atan(diffx / diffy);
@@ -1158,16 +1166,23 @@ class attack extends Base {
 		}
 	}
 
-	public boolean check(){
-		//if (x==destx){
-			if (y<=desty){
-				return true;
-			}
-	//	}
+	public boolean check() {
+		// if (x==destx){
+		if (y <= desty) {
+			return true;
+		}
+		// }
 		return false;
 	}
-}
 
+	public enemy getOwner() {
+		return owner;
+	}
+
+	public void setOwner(enemy owner) {
+		this.owner = owner;
+	}
+}
 
 class enemy extends Base {
 	private String value;
@@ -1176,8 +1191,8 @@ class enemy extends Base {
 	private Image pic = new ImageIcon("ship4.gif").getImage();
 	private Image[] explosion = new Image[14];
 	private ArrayList<attack> targetedAttacks = new ArrayList<attack>();
-	double rad, dx, dy, frameRate=0.0;
-	private boolean dead=false;
+	double rad, dx, dy, frameRate = 0.0;
+	private boolean dead = false;
 
 	public enemy(String value, int x, int y) {
 		super(x + 29, y + 29);
@@ -1189,32 +1204,35 @@ class enemy extends Base {
 		dy = Math.cos(rad) / 11;
 		score = value.length();
 		for (int i = 0; i < 13; i++) {
-			explosion[i] = new ImageIcon("tile" + i + ".png").getImage();
+			explosion[i] = new ImageIcon(
+					"C:\\Users\\kkyyh\\eclipse-workspace\\School 17-18\\src\\FSE\\images\\sprites\\explosion\\tile" + i
+							+ ".png").getImage();
 		}
 	}
 
-	public Image[] getPics(){
+	public Image[] getPics() {
 		return explosion;
 	}
 
-	public int getFrame(){
-		return (int)frameRate;
+	public int getFrame() {
+		return (int) frameRate;
 	}
 
-	public void addFrame(){
-		frameRate+=0.125;
+	public void addFrame() {
+		if (frameRate <= 13)
+		frameRate += 0.125;
 	}
 
 	public String getValue() {
 		return value;
 	}
 
-	public boolean getDead(){
+	public boolean getDead() {
 		return dead;
 	}
 
-	public void setDead(){
-		dead=true;
+	public void setDead() {
+		dead = true;
 	}
 
 	public int getType() {
@@ -1233,7 +1251,7 @@ class enemy extends Base {
 		return rad;
 	}
 
-	public ArrayList<attack> getAttacks(){
+	public ArrayList<attack> getAttacks() {
 		return targetedAttacks;
 	}
 
@@ -1259,26 +1277,27 @@ class enemy extends Base {
 	}
 }
 
-class bigBoss extends enemy{
+class bigBoss extends enemy {
 	private ArrayList<Bullet> bullets = new ArrayList<Bullet>();
-	int[] xCoordinates = new int[]{0,0,0,175,390,630,700,700,700};
-	int[] yCoordinates = new int[]{500,685,870,900,900,900,500,685,870	};
-	char[] characters = new char[]{'a','b','c','d','e','f','g','h','i','j','k','l','m','n','o','p','q','r','s','t','u','v','w','x','y','z'};
+	int[] xCoordinates = new int[] { 0, 0, 0, 175, 390, 630, 700, 700, 700 };
+	int[] yCoordinates = new int[] { 500, 685, 870, 900, 900, 900, 500, 685, 870 };
+	char[] characters = new char[] { 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p',
+			'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z' };
 	Random rand = new Random();
 	int random = (int) (rand.nextInt((characters.length)));
 
-	public bigBoss(String value, int x, int y){
-		super(value,x,y);
+	public bigBoss(String value, int x, int y) {
+		super(value, x, y);
 	}
 
-	public void attack(){
-		for (int i=0;i<9;i++){
-			bullets.add(new Bullet(characters[random],(int)x,(int)y,xCoordinates[i],yCoordinates[i]));
+	public void attack() {
+		for (int i = 0; i < 9; i++) {
+			bullets.add(new Bullet(characters[random], (int) x, (int) y, xCoordinates[i], yCoordinates[i]));
 		}
 	}
 
-	public void moveAttack(){
-		for (Bullet n : bullets){
+	public void moveAttack() {
+		for (Bullet n : bullets) {
 			n.move();
 		}
 	}
@@ -1297,11 +1316,12 @@ class button extends Rectangle {
 	}
 }
 
-class circle{
+class circle {
 	private int cx = 350, cy = 850, rad;
+
 	public boolean contains(int x, int y) {
 		double dist = Math.sqrt(Math.pow((x - cx), 2) + Math.pow((y - cy), 2));
-		//System.out.println(dist);
+		// System.out.println(dist);
 		if (dist <= rad) {
 			return true;
 		}
@@ -1310,8 +1330,9 @@ class circle{
 
 	public void setRad(int r) {
 		rad = r;
-		//System.out.println(850-rad);
+		// System.out.println(850-rad);
 	}
+
 	public int getRad() {
 		return rad;
 	}
