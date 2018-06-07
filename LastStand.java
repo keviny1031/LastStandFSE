@@ -37,23 +37,24 @@ public class LastStand extends JFrame {
 class GamePanel extends JPanel implements KeyListener, MouseListener, ActionListener, MouseMotionListener {
 	private JFrame frame;
 	private String username, typedValue, screen = "menu";
-	
+
 	private boolean[] keys;
 	private Image[] backgrounds = new Image[1];
 	private button[] buttons = new button[4];
 	private String[] buttonText = { "PLAY GAME", "INSTRUCTIONS", "HIGH SCORE", "QUIT" };
 	private double[][] starList;
-	
+
 	private LinkedList<enemy>[] enemies = new LinkedList[26];
 	private ArrayList<Bullet> bullets = new ArrayList<Bullet>();
 	private ArrayList<attack> b = new ArrayList<attack>();
 	private ArrayList<String> basic = new ArrayList<String>();
 	private ArrayList<String> intermediate = new ArrayList<String>();
 	private ArrayList<String> advanced = new ArrayList<String>();
-	
+	private ArrayList<enemy> dead = new ArrayList<enemy>();
+
 	private enemy activeTarget = null;
 	private int enemySlot = 0;
-	
+
 	private Image logo;
 	private Image ship1;
 	private Image ship2;
@@ -61,10 +62,10 @@ class GamePanel extends JPanel implements KeyListener, MouseListener, ActionList
 	private Image ship4;
 	private Image ship5;
 	private Image shot2;
-	
+
 	private circle empRad = new circle();
-	private circle target = new circle(); 
-		
+	private circle target = new circle();
+
 	private AffineTransform trans = new AffineTransform();
 	private Font menuFont = new Font("Rocket Propelled", Font.TRUETYPE_FONT, 40);
 	private Font text = new Font("Falling Sky", Font.TRUETYPE_FONT, 20);
@@ -72,16 +73,16 @@ class GamePanel extends JPanel implements KeyListener, MouseListener, ActionList
 	private Color colour;
 	final Timer timer;
 	@SuppressWarnings("unchecked")
-	
+
 	private int level = 1, bombRad, filledEnemies;
 	private int targetRad=100;
 	private boolean levelFinish = false, bombing;
 	private int bombs = 3, emps = 200;
-	
-	
+
+
 	boolean newTarget=false;
 	private bigBoss testerBoss = new bigBoss("Amaaaaaaazing", 0,0);
-	
+
 
 	// stats
 	private int wrong = 0;// wrong
@@ -117,7 +118,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener, ActionList
 			username = JOptionPane.showInputDialog(null, "Input Username:", "Username Input",
 					JOptionPane.QUESTION_MESSAGE);
 	}
-	
+
 	////////////////////Making Enemies///////////////////
 
 	public boolean isAlpha(String name) {
@@ -131,7 +132,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener, ActionList
 
 		return true;
 	}
-	
+
 	public boolean checkClose(int x, int y) {
 		for (int i = 0; i < 26; i++) {
 			LinkedList<enemy> current = enemies[i];
@@ -146,7 +147,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener, ActionList
 		}
 		return false;
 	}
-	
+
 	public int randX() {
 		Random rand = new Random();
 		int random = (int) (rand.nextInt((basic.size()) + 1));
@@ -162,7 +163,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener, ActionList
 		Random rand = new Random();
 		return -50 - rand.nextInt(226) - level * 25;
 	}
-	
+
 	public void addEnemy(enemy n) {
 		int pos = n.index();
 		enemies[pos].add(n);
@@ -518,7 +519,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener, ActionList
 		}
 		levelFinish = false;
 	}
-	
+
 	/////////////////////////Stars////////////////////////////
 
 	public double[][] genScrollStars(int max) {
@@ -559,7 +560,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener, ActionList
 			g.fillOval((int) star[0], (int) star[1], 2, 2);
 		}
 	}
-	
+
 	//////////////////////Graphics/////////////////////////
 
 	public void paintComponent(Graphics g) {
@@ -621,19 +622,19 @@ class GamePanel extends JPanel implements KeyListener, MouseListener, ActionList
 			}
 			repaint();
 		}
-		
-			
+
+
 		g.drawImage(ship2, 317, 820, this);
 		if (levelFinish) {
 			makeEnemies();
 		}
 		g.setFont(menuFont);
 		g.setColor(Color.white);
-		
+
 		testerBoss.move();
 		g.drawString(testerBoss.getValue(),testerBoss.getX(),testerBoss.getY());
 		testerBoss.attack();
-		
+
 		testerBoss.moveAttack();
 		for (Bullet n : bullets){
 			g.drawString(Character.toString(n.getLetter()),n.getX(),n.getY());
@@ -646,7 +647,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener, ActionList
 				n.move();
 			}
 		}
-		
+
 		if (newTarget){
 			targetRad--;
 			target.setRad(targetRad);
@@ -655,7 +656,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener, ActionList
 				newTarget=false;
 				targetRad=100;
 			}
-			
+
 		}
 
 		for (Iterator<attack> it = b.iterator(); it.hasNext();) {
@@ -668,13 +669,10 @@ class GamePanel extends JPanel implements KeyListener, MouseListener, ActionList
 		}
 
 		if (activeTarget != null) {
-			//System.out.println(activeTarget.getY() + 29);
 			g.setColor(Color.red);
 			g.drawLine(activeTarget.getX() + 29, activeTarget.getY() + 29, activeTarget.getX() + 29, activeTarget.getY() + 29);
 			if (activeTarget.getValue().equals("") && activeTarget.getAttacks().isEmpty()) {// if we finished typing that enemies word
-				while(activeTarget.getDead()==false){
-					activeTarget.explode(g);
-				}
+				dead.add(activeTarget);
 				score += activeTarget.getScore() * level;
 				enemies[enemySlot].remove(activeTarget);
 				activeTarget = null;
@@ -697,18 +695,28 @@ class GamePanel extends JPanel implements KeyListener, MouseListener, ActionList
 			}
 		}
 		g.setFont(text);
-		g.setColor(Color.white);
 		for (int i = 0; i < 26; i++) {
 			LinkedList<enemy> current = enemies[i];
 			for (enemy n : current) {
 				g.drawImage(ship4,n.getX(),n.getY(),this);
+				g.setColor(Color.black);
+				g.fillRect(n.getX(),n.getY()+20, n.getValue().length()*23, 20);
+				g.setColor(Color.white);
 				g.drawString(n.getValue(), n.getX()+4, n.getY()+35);
-				// System.out.println(total);
+
+			}
+		}
+
+		for (enemy n : dead){
+			explode(g,n);
+		}
+		for (enemy n : dead){
+			if (n.getDead()){
+				dead.remove(n);
 			}
 		}
 
 		if (activeTarget != null) {
-			//System.out.println(activeTarget.getY() + 29);
 			g.setColor(Color.red);
 			g.drawRect(activeTarget.getX() + 29, activeTarget.getY() + 29, 10, 10);
 			g.drawString(activeTarget.getValue(),activeTarget.getX()+4,activeTarget.getY()+35);
@@ -760,7 +768,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener, ActionList
 		//System.out.println(rad);
 		g.drawOval(350 - rad, 850 - rad, rad * 2, rad * 2);
 	}
-	
+
 	public void drawTarget(Graphics g, int rad){
 		g.setColor(Color.orange);
 		g.drawOval(activeTarget.getX() - rad + 28 , activeTarget.getY() - rad + 28, rad * 2, rad * 2);
@@ -775,6 +783,16 @@ class GamePanel extends JPanel implements KeyListener, MouseListener, ActionList
 		g.setColor(Color.yellow);
 		g.fillRect(0, 0, 700, 930);
 	}
+
+
+	public void explode(Graphics g, enemy n){
+		Image[] explosion = n.getPics();
+		n.addFrame();
+		g.drawImage(explosion[n.getFrame()],n.getX()-28,n.getY()-28,this);
+		if (n.getFrame()==13){
+			n.setDead();
+		}
+	}
 	//////////////////////Math and Logic Functions//////////////////////
 
 	public double getAngle(int x, int y) {
@@ -783,7 +801,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener, ActionList
 		double ang = Math.atan(diffx / diffy);
 		return ang;
 	}
-	
+
 	public void checkRad() {
 		for (int i = 0; i < 26; i++) {
 			LinkedList<enemy> current = enemies[i];
@@ -797,7 +815,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener, ActionList
 			}
 		}
 	}
-	
+
 	public static double round(double value, int places) {
         if (places < 0) throw new IllegalArgumentException();
 
@@ -806,7 +824,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener, ActionList
         long tmp = Math.round(value);
         return (double) tmp / factor;
     }
-    
+
     public enemy getLowest(LinkedList<enemy> n) {
 		int max = 0;
 		enemy checker = null;
@@ -893,7 +911,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener, ActionList
 			}
 		}
 	}
-	
+
 	///////////////////////KeyPressed,Interactions////////////////////////
 
 	public void keyPressed(KeyEvent e) {
@@ -1048,7 +1066,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener, ActionList
 	public void actionPerformed(ActionEvent e) {
 		repaint();
 	}
-	
+
 	@Override
 	public void mouseDragged(MouseEvent arg0) {
 		// TODO Auto-generated method stub
@@ -1171,18 +1189,34 @@ class enemy extends Base {
 		dy = Math.cos(rad) / 11;
 		score = value.length();
 		for (int i = 0; i < 13; i++) {
-			explosion[i] = new ImageIcon("C:\\Users\\kkyyh\\eclipse-workspace\\School 17-18\\src\\FSE\\images\\sprites\\explosion\\tile" + i + ".png").getImage();
+			explosion[i] = new ImageIcon("tile" + i + ".png").getImage();
 		}
+	}
+
+	public Image[] getPics(){
+		return explosion;
+	}
+
+	public int getFrame(){
+		return (int)frameRate;
+	}
+
+	public void addFrame(){
+		frameRate+=0.125;
 	}
 
 	public String getValue() {
 		return value;
 	}
-	
+
 	public boolean getDead(){
 		return dead;
 	}
-	
+
+	public void setDead(){
+		dead=true;
+	}
+
 	public int getType() {
 		return type;
 	}
@@ -1222,14 +1256,6 @@ class enemy extends Base {
 	public void remove() {
 		// System.out.println("here");
 		value = value.substring(1);
-	}
-	
-	public void explode(Graphics g){
-		frameRate+=0.25;
-		g.drawImage(explosion[((int)frameRate)],x,y,this);
-		if ((int)frameRate==13){
-			dead=true;
-		}
 	}
 }
 
