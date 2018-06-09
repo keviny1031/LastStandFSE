@@ -827,10 +827,13 @@ class GamePanel extends JPanel implements KeyListener, MouseListener, ActionList
 	}
 
 	public enemy getLowest(LinkedList<enemy> n) {
-		int max = 0;
-		enemy checker = null;
+		int max = n.get(0).getY();
+		enemy checker = n.get(0);
 		for (enemy check : n) {
 			int distance = check.getY();
+			if (distance < 0) {
+				
+			}
 			if (distance > max) {
 				max = distance;
 				checker = check;
@@ -862,7 +865,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener, ActionList
 
 			else if (!enemies[slot].isEmpty()) {// if there's an enemy that starts with this character
 				activeTarget = getLowest(enemies[slot]);// getting the enemy that is the closest
-				if (activeTarget.getY() > 20 && activeTarget.getX() < 700 && activeTarget.getX() > 0) {
+				if (activeTarget.getY() > -70 && activeTarget.getX() < 700 && activeTarget.getX() > 0) {
 					typing(n); // used later when im deleting and reorganizing
 					enemySlot = slot;//
 					newTarget = true;
@@ -913,7 +916,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener, ActionList
 			for (int i = 0; i < 26; i++) {
 				LinkedList<enemy> current = enemies[i];
 				for (enemy x : current) {
-					if (x.getY() > 0) {
+					if (x.getY() > -70) {
 						if (x.getX() > 0 && x.getX() < 700) {
 							inScreen = true;
 						}
