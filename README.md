@@ -1,5 +1,5 @@
-Things to do:\n
--Next level screen\n
--Enemy shooting\n
--Bug fixes\n
+Things to do:
+-Next level screen
+-Enemy shooting
+-Bug fixes
 -Boss?
