@@ -6,11 +6,13 @@ import java.awt.*;
 import java.awt.event.*;
 import java.util.*;
 import javax.swing.*;
-import javax.swing.Timer;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.math.*;
 import java.awt.Graphics;
 import java.awt.geom.AffineTransform;
 import java.awt.image.AffineTransformOp;
+import java.awt.geom.Rectangle2D;
 
 public class LastStand extends JFrame {
 	GamePanel game;
@@ -44,12 +46,14 @@ class GamePanel extends JPanel implements KeyListener, MouseListener, ActionList
 	private double[][] starList;
 
 	private LinkedList<enemy>[] enemies = new LinkedList[26];
-	private ArrayList<Bullet> bullets = new ArrayList<Bullet>();
+	public ArrayList<Bullet> bullets = new ArrayList<Bullet>();
 	private ArrayList<attack> b = new ArrayList<attack>();
 	private ArrayList<String> basic = new ArrayList<String>();
 	private ArrayList<String> intermediate = new ArrayList<String>();
 	private ArrayList<String> advanced = new ArrayList<String>();
 	private ArrayList<enemy> dead = new ArrayList<enemy>();
+	private Rectangle2D ship = new Rectangle2D.Double(317,820,64,55);
+	private Rectangle2D check;
 
 	private enemy activeTarget = null;
 	private int enemySlot = 0;
@@ -77,6 +81,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener, ActionList
 	private int targetRad = 100;
 	private boolean levelFinish = false, bombing;
 	private int emps = 2;
+	private int lives=2;
 
 	boolean newTarget = true;
 	private bigBoss testerBoss = new bigBoss("Amaaaaaaazing", 0, 0);
@@ -99,13 +104,13 @@ class GamePanel extends JPanel implements KeyListener, MouseListener, ActionList
 		keys = new boolean[KeyEvent.KEY_LAST + 1];
 		logo = new ImageIcon("logo.png").getImage();
 		ship1 = new ImageIcon("ship1.gif").getImage();
-		ship2 = new ImageIcon("C:\\Users\\kkyyh\\eclipse-workspace\\School 17-18\\src\\FSE\\images\\sprites\\ship2.gif")
+		ship2 = new ImageIcon("ship2.gif")
 				.getImage();
 		ship3 = new ImageIcon("ship3.gif").getImage();
-		ship4 = new ImageIcon("C:\\Users\\kkyyh\\eclipse-workspace\\School 17-18\\src\\FSE\\images\\sprites\\ship4.gif")
+		ship4 = new ImageIcon("ship4.gif")
 				.getImage();
 		ship5 = new ImageIcon("ship5.gif").getImage();
-		shot2 = new ImageIcon("C:\\Users\\kkyyh\\eclipse-workspace\\School 17-18\\src\\FSE\\images\\sprites\\shot2.png")
+		shot2 = new ImageIcon("shot2.png")
 				.getImage();
 		initEnemies();
 		addKeyListener(this);
@@ -176,7 +181,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener, ActionList
 
 		Scanner stdin = new Scanner(System.in);
 		Scanner inFile = new Scanner(new BufferedReader(
-				new FileReader("C:\\Users\\kkyyh\\eclipse-workspace\\School 17-18\\src\\FSE\\files\\words.txt")));
+				new FileReader("words.txt")));
 		while (inFile.hasNextLine()) {
 			String word = inFile.nextLine();
 			if (isAlpha(word)) {
@@ -641,8 +646,14 @@ class GamePanel extends JPanel implements KeyListener, MouseListener, ActionList
 		for (int i = 0; i < 26; i++) {
 			LinkedList<enemy> current = enemies[i];
 			for (enemy n : current) {
-				// total++;
+				//check= new Rectangle2D.Double(n.getX()-29,n.getY()-29,58,58);
 				n.move();
+				if (ship.contains(n.getX(),n.getY(),58,58)){
+					lives-=1;
+					if (lives==0){
+						//end screen; 
+					}
+				}
 			}
 		}
 
@@ -842,6 +853,18 @@ class GamePanel extends JPanel implements KeyListener, MouseListener, ActionList
 
 		enemy lowest = checker;
 		return lowest;
+	}
+	
+	public ArrayList<enemy> getAllEnemies(){
+		ArrayList<enemy> returning = new ArrayList<enemy>();
+		for (int i = 0; i < 26; i++) {
+			LinkedList<enemy> current = enemies[i];
+			for (Iterator<enemy> it = current.iterator(); it.hasNext();) {
+				enemy n = it.next();
+				returning.add(n);
+			}
+		}
+		return returning;
 	}
 
 	public void reOrganize() {
@@ -1198,7 +1221,7 @@ class enemy extends Base {
 		score = value.length();
 		for (int i = 0; i < 13; i++) {
 			explosion[i] = new ImageIcon(
-					"C:\\Users\\kkyyh\\eclipse-workspace\\School 17-18\\src\\FSE\\images\\sprites\\explosion\\tile" + i
+					"tile" + i
 							+ ".png").getImage();
 		}
 	}
@@ -1324,5 +1347,38 @@ class circle {
 
 	public int getRad() {
 		return rad;
+	}
+}
+
+class pewpew extends TimerTask {
+	private boolean timesup;
+	private ArrayList<enemy> allOptions;
+	private ArrayList<Bullet> bullets;
+	char[] characters = new char[] { 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o', 'p',
+			'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z' };
+	Random rand = new Random();
+	int random = (int) (rand.nextInt((characters.length)));
+
+	public pewpew(boolean timesup,ArrayList<enemy> allOptions,ArrayList<Bullet> bullets) {
+		this.timesup=timesup;
+		this.allOptions=allOptions;
+		this.bullets=bullets;
+		Collections.shuffle(allOptions);
+	}
+
+	public void run() {
+		if (timesup) {
+			if (allOptions.size()>=3){
+				for (int i=0;i<2;i++){
+					bullets.add(new Bullet(characters[random],allOptions.get(i).getX(),allOptions.get(i).getY(),350,850));
+				}
+			}
+			else{
+				for (int i=0;i<allOptions.size();i++){
+					bullets.add(new Bullet(characters[random],allOptions.get(i).getX(),allOptions.get(i).getY(),350,850));
+				}
+			}
+		}
+		timesup=false;
 	}
 }
