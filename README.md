@@ -1,1 +1,1 @@
-alright, i dun goofed. here we go again :]
+holy moly macaroni! it's lucas wang! oh my god... i don't know what to say! i've been a fan of your work since the early shit, since maybe 2005! anyways, you're probably really busy right now and don't have the time to speak to a fan like me... heh. well, see you around hopefully! :)
