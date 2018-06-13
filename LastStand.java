@@ -74,12 +74,12 @@ class GamePanel extends JPanel implements KeyListener, MouseListener, ActionList
 	private Font text = new Font("Falling Sky", Font.TRUETYPE_FONT, 20);
 	private Random random = new Random();
 	private Color colour;
-	final Timer timer;
+	private Timer timer;
+	private TimerTask pewpew;
 	@SuppressWarnings("unchecked")
-
 	private int level = 2, bombRad, filledEnemies;
 	private int targetRad = 100;
-	private boolean levelFinish = false, bombing;
+	private boolean levelFinish = false, bombing, enemyShoot = false;
 	private int emps = 2;
 	private int lives=2;
 
@@ -97,9 +97,6 @@ class GamePanel extends JPanel implements KeyListener, MouseListener, ActionList
 		setSize(700, 930);
 		getUsername();
 		this.frame = frame;
-		timer = new Timer(40, this);
-		timer.setDelay(1);
-		timer.start();
 		starList = genScrollStars(450);
 		keys = new boolean[KeyEvent.KEY_LAST + 1];
 		logo = new ImageIcon("logo.png").getImage();
@@ -181,7 +178,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener, ActionList
 
 		Scanner stdin = new Scanner(System.in);
 		Scanner inFile = new Scanner(new BufferedReader(
-				new FileReader("words.txt")));
+				new FileReader("C:\\Users\\kkyyh\\eclipse-workspace\\School 17-18\\src\\FSE\\files\\words.txt")));
 		while (inFile.hasNextLine()) {
 			String word = inFile.nextLine();
 			if (isAlpha(word)) {
@@ -1055,6 +1052,12 @@ class GamePanel extends JPanel implements KeyListener, MouseListener, ActionList
 			for (button button : buttons) {
 				if (button.contains(e.getX(), e.getY())) {
 					screen = button.getVal();
+					if (screen == "Play Game") {
+						timer = new Timer();
+						pewpew = new pewpew(enemyShoot, getAllEnemies(), bullets);
+						timer.schedule(pewpew, (long) (5 - Math.pow(1.3, level - 1)));
+					}
+						
 				}
 			}
 		}
@@ -1379,6 +1382,6 @@ class pewpew extends TimerTask {
 				}
 			}
 		}
-		timesup=false;
+		timesup = false;
 	}
 }
