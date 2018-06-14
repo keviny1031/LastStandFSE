@@ -74,6 +74,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener, ActionList
 	private AffineTransform trans = new AffineTransform();// miscellaneous
 	private Font menuFont = new Font("Rocket Propelled", Font.TRUETYPE_FONT, 40);
 	private Font text = new Font("Falling Sky", Font.TRUETYPE_FONT, 20);
+	private Font labelFont = new Font("Rocket Propelled", Font.TRUETYPE_FONT, 35);
 	private Random random = new Random();
 	private Color colour;
 	private Timer timer;
@@ -707,12 +708,12 @@ class GamePanel extends JPanel implements KeyListener, MouseListener, ActionList
 					g.setColor(Color.red);
 					g.fillRect(n.getX(), n.getY(), 58, 58);
 					if (ship.intersects(n.getX(), n.getY(), 58, 58)) {
+						it.remove();
 						lives -= 1;
 						if (lives <= 0) {
 							clearAll();
 							highScore();
 							screen = "end";
-							System.out.println(highestScore);
 							return;
 						}
 					}
@@ -780,6 +781,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener, ActionList
 				g.drawString(n.getValue(), n.getX(), n.getY());
 				n.move();
 				if (ship.intersects(n.getX(), n.getY(), 10, 10)) {
+					it.remove();
 					lives -= 1;
 					if (lives <= 0) {
 						clearAll();
@@ -807,12 +809,16 @@ class GamePanel extends JPanel implements KeyListener, MouseListener, ActionList
 			}
 	
 			g.setColor(Color.white);
+			g.setFont(labelFont);
+			g.drawString("Score: " + score, 6, 33);
+			g.drawString("Lives: " + lives, 535, 33);
+			g.drawString("EMPs: " + emps, 9, 890);
 			filledEnemies = 0;
 			for (LinkedList<enemy> enemyList : enemies) {
 				if (!enemyList.isEmpty())
 					filledEnemies++;
 			}
-	
+			
 			for (enemy enemy : bullets) {
 				filledEnemies++;
 			}
@@ -925,6 +931,12 @@ class GamePanel extends JPanel implements KeyListener, MouseListener, ActionList
 						activeTarget = null;
 					it.remove();
 				}
+			}
+		}
+		for (Iterator<enemy> it = bullets.iterator(); it.hasNext();) {
+			enemy b = it.next();
+			if (empRad.contains(b.getX(), b.getY()) && bombing){
+				it.remove();
 			}
 		}
 	}
@@ -1225,7 +1237,8 @@ class GamePanel extends JPanel implements KeyListener, MouseListener, ActionList
 	public void highScore() throws IOException, NumberFormatException {
 		BufferedReader scoreFile = new BufferedReader(new FileReader("C:\\Users\\kkyyh\\eclipse-workspace\\School 17-18\\src\\FSE\\files\\highscore.txt"));
 		String line = scoreFile.readLine();
-		highestScore = Integer.parseInt(line);
+		String[] scoreParts = line.split(": ");
+		int highestScore = Integer.parseInt(scoreParts[1]);
 		scoreFile.close();
 		
 		BufferedWriter scoreFile2 = new BufferedWriter(new FileWriter("C:\\Users\\kkyyh\\eclipse-workspace\\School 17-18\\src\\FSE\\files\\highscore.txt"));
@@ -1233,12 +1246,11 @@ class GamePanel extends JPanel implements KeyListener, MouseListener, ActionList
 		if (score > highestScore){
 			highestScore = score;
 			String scoreStr = Integer.toString(score);
-			scoreFile2.write(scoreStr);
+			scoreFile2.write(username + ": " + scoreStr);
 			
 		}
 		else{
-			String scoreStr = Integer.toString(highestScore);
-			scoreFile2.write(scoreStr);
+			scoreFile2.write(scoreParts[0] + ": " + scoreParts[1]);
 			
 		}
 		scoreFile2.close(); 
