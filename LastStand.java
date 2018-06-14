@@ -1,4 +1,5 @@
 package FSE;
+
 //importing everything
 import java.io.*;
 import java.text.DecimalFormat;
@@ -37,27 +38,28 @@ public class LastStand extends JFrame {
 }
 
 class GamePanel extends JPanel implements KeyListener, MouseListener, ActionListener, MouseMotionListener {
-	private JFrame frame;//game stuff
+	private JFrame frame;// game stuff
 	private String username, typedValue, screen = "menu";
 	private boolean[] keys;
 	private Image[] backgrounds = new Image[1];
 	private button[] buttons = new button[4];
 	private String[] buttonText = { "PLAY GAME", "INSTRUCTIONS", "HIGH SCORE", "QUIT" };
 	private double[][] starList;
-
-	private LinkedList<enemy>[] enemies = new LinkedList[26];//enemies and objects
+	private char[] characters = new char[] { 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o',
+			'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z' };
+	private LinkedList<enemy>[] enemies = new LinkedList[26];// enemies and objects
 	public ArrayList<Bullet> bullets = new ArrayList<Bullet>();
 	private ArrayList<attack> b = new ArrayList<attack>();
 	private ArrayList<String> basic = new ArrayList<String>();
 	private ArrayList<String> intermediate = new ArrayList<String>();
 	private ArrayList<String> advanced = new ArrayList<String>();
 	private ArrayList<enemy> dead = new ArrayList<enemy>();
-	private Rectangle2D ship = new Rectangle2D.Double(317,820,64,55);
+	private Rectangle2D ship = new Rectangle2D.Double(317, 820, 64, 55);
 	private Rectangle2D check;
 	private enemy activeTarget = null;
 	private int enemySlot = 0;
 
-	private Image logo;//pics
+	private Image logo;// pics
 	private Image ship1;
 	private Image ship2;
 	private Image ship3;
@@ -65,22 +67,23 @@ class GamePanel extends JPanel implements KeyListener, MouseListener, ActionList
 	private Image ship5;
 	private Image shot2;
 
-	private circle empRad = new circle();//graphics
+	private circle empRad = new circle();// graphics
 	private circle target = new circle();
 
-	private AffineTransform trans = new AffineTransform();//miscellaneous
+	private AffineTransform trans = new AffineTransform();// miscellaneous
 	private Font menuFont = new Font("Rocket Propelled", Font.TRUETYPE_FONT, 40);
 	private Font text = new Font("Falling Sky", Font.TRUETYPE_FONT, 20);
 	private Random random = new Random();
 	private Color colour;
 	private Timer timer;
-	private TimerTask pewpew;
+
 	@SuppressWarnings("unchecked")
 	private int level = 2, bombRad, filledEnemies;
 	private int targetRad = 100;
 	private boolean levelFinish = false, bombing, enemyShoot = false;
+	private toggle toggle;
 	private int emps = 2;
-	private int lives=2;
+	private int lives = 2;
 
 	boolean newTarget = true;
 	private bigBoss testerBoss = new bigBoss("Amaaaaaaazing", 0, 0);
@@ -100,14 +103,11 @@ class GamePanel extends JPanel implements KeyListener, MouseListener, ActionList
 		keys = new boolean[KeyEvent.KEY_LAST + 1];
 		logo = new ImageIcon("logo.png").getImage();
 		ship1 = new ImageIcon("ship1.gif").getImage();
-		ship2 = new ImageIcon("ship2.gif")
-				.getImage();
+		ship2 = new ImageIcon("ship2.gif").getImage();
 		ship3 = new ImageIcon("ship3.gif").getImage();
-		ship4 = new ImageIcon("ship4.gif")
-				.getImage();
+		ship4 = new ImageIcon("ship4.gif").getImage();
 		ship5 = new ImageIcon("ship5.gif").getImage();
-		shot2 = new ImageIcon("shot2.png")
-				.getImage();
+		shot2 = new ImageIcon("shot2.png").getImage();
 		initEnemies();
 		addKeyListener(this);
 		addMouseListener(this);
@@ -122,7 +122,8 @@ class GamePanel extends JPanel implements KeyListener, MouseListener, ActionList
 
 	//////////////////// Making Enemies///////////////////
 
-	public boolean isAlpha(String name) {//we have a huge textfile of words, this jsut checks if there is any special characters
+	public boolean isAlpha(String name) {// we have a huge textfile of words, this jsut checks if there is any special
+											// characters
 		char[] chars = name.toCharArray();
 
 		for (char c : chars) {
@@ -134,14 +135,15 @@ class GamePanel extends JPanel implements KeyListener, MouseListener, ActionList
 		return true;
 	}
 
-	public boolean checkClose(int x, int y) {//checking enemy coordinate values, so that they don't all spawn on top of each other, making it hard to see
-		for (int i = 0; i < 26; i++) {//goes through all the 26 linked list
+	public boolean checkClose(int x, int y) {// checking enemy coordinate values, so that they don't all spawn on top of
+												// each other, making it hard to see
+		for (int i = 0; i < 26; i++) {// goes through all the 26 linked list
 			LinkedList<enemy> current = enemies[i];
-			for (enemy enemyCheck : current) {//goes through each enemy
-				if (Math.abs(enemyCheck.getX() - x) < 5) {//if its closer than 5 pixels
+			for (enemy enemyCheck : current) {// goes through each enemy
+				if (Math.abs(enemyCheck.getX() - x) < 5) {// if its closer than 5 pixels
 					return true;
 				}
-				if (Math.abs(enemyCheck.getY() - y) < 5) {//if its closer than 5 pixels
+				if (Math.abs(enemyCheck.getY() - y) < 5) {// if its closer than 5 pixels
 					return true;
 				}
 			}
@@ -149,18 +151,19 @@ class GamePanel extends JPanel implements KeyListener, MouseListener, ActionList
 		return false;
 	}
 
-	public int randX() {//getting a random x value above the screen so that the enemies can float into the visible screen
+	public int randX() {// getting a random x value above the screen so that the enemies can float into
+						// the visible screen
 		Random rand = new Random();
 		int random = (int) (rand.nextInt((basic.size()) + 1));
 		int[] possibleX = new int[4];
-		possibleX[0] = -1 * rand.nextInt(100);//4 random coordinates and we pick 1
-		possibleX[1] = 700 + rand.nextInt(100);//the x coordinates are in different regions
+		possibleX[0] = -1 * rand.nextInt(100);// 4 random coordinates and we pick 1
+		possibleX[1] = 700 + rand.nextInt(100);// the x coordinates are in different regions
 		possibleX[2] = rand.nextInt(346);
 		possibleX[3] = 355 + rand.nextInt(346);
 		return possibleX[rand.nextInt(4)];
 	}
 
-	public int randY(int level) {//returns a random y value above the screen
+	public int randY(int level) {// returns a random y value above the screen
 		Random rand = new Random();
 		return -50 - rand.nextInt(226) - level * 25;
 	}
@@ -176,12 +179,13 @@ class GamePanel extends JPanel implements KeyListener, MouseListener, ActionList
 		}
 
 		Scanner stdin = new Scanner(System.in);
-		Scanner inFile = new Scanner(new BufferedReader(//scanning and opening the word textfile
+		Scanner inFile = new Scanner(new BufferedReader(// scanning and opening the word textfile
 				new FileReader("C:\\Users\\kkyyh\\eclipse-workspace\\School 17-18\\src\\FSE\\files\\words.txt")));
-		while (inFile.hasNextLine()) {//while theres more to read
+		while (inFile.hasNextLine()) {// while theres more to read
 			String word = inFile.nextLine();
-			if (isAlpha(word)) {//checking if theres any special characters
-				if (word.length() <= 5) {//adding it to a corresponding list: basic, intermediate, advanced based on the character length
+			if (isAlpha(word)) {// checking if theres any special characters
+				if (word.length() <= 5) {// adding it to a corresponding list: basic, intermediate, advanced based on
+											// the character length
 					basic.add(word);
 				} else if (word.length() <= 8) {
 					intermediate.add(word);
@@ -191,19 +195,21 @@ class GamePanel extends JPanel implements KeyListener, MouseListener, ActionList
 			}
 		}
 		inFile.close();
-
 		Collections.shuffle(basic);
 		Collections.shuffle(intermediate);
 		Collections.shuffle(advanced);
 		makeEnemies();
 	}
 
-	public void makeEnemies() {//making enemies
+	public void makeEnemies() {// making enemies
 		Random rand = new Random();
-		switch (level) {//different amounts for each level
-		//the way this code works is we have up to 3 for loops for each level, one loop for basic, intermediate and advanced
-		//some earlier levels may not have 3 as we do not want to introduce harder words until later
-		//in each for loop it takes a random x and y value, give it a random value from the corresponding list, and if checkClose()==false, we add it
+		switch (level) {// different amounts for each level
+		// the way this code works is we have up to 3 for loops for each level, one loop
+		// for basic, intermediate and advanced
+		// some earlier levels may not have 3 as we do not want to introduce harder
+		// words until later
+		// in each for loop it takes a random x and y value, give it a random value from
+		// the corresponding list, and if checkClose()==false, we add it
 		case 1:
 			for (int b = 0; b < 4 * level; b++) {
 				int pickedX = randX();
@@ -581,6 +587,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener, ActionList
 			next(g);
 		else
 			frame.dispose();
+		repaint();
 	}
 
 	public void menu(Graphics g) {
@@ -607,9 +614,29 @@ class GamePanel extends JPanel implements KeyListener, MouseListener, ActionList
 		g.drawString("QUIT", 315, 615);
 	}
 
+	public void createEnemyBullets() {
+		ArrayList<enemy> allOptions = getAllEnemies();
+		Random rand = new Random();
+		if (allOptions.size() >= 3) {
+			for (int i = 0; i < 2; i++) {
+				int random = (int) (rand.nextInt((characters.length)));
+				bullets.add(
+						new Bullet(characters[random], allOptions.get(i).getX(), allOptions.get(i).getY(), 350, 850));
+			}
+		} else {
+			for (int i = 0; i < allOptions.size(); i++) {
+				int random = (int) (rand.nextInt((characters.length)));
+				bullets.add(
+						new Bullet(characters[random], allOptions.get(i).getX(), allOptions.get(i).getY(), 350, 850));
+
+			}
+		}
+	}
+
 	public void game(Graphics g) {
-		//calling everything, checking everything, running everything
+		// calling everything, checking everything, running everything\
 		Graphics2D g2 = (Graphics2D) g;
+		enemyShoot = toggle.getShoot();
 		int total = 0;
 		requestFocusInWindow();
 		g.setColor(Color.black);
@@ -631,27 +658,33 @@ class GamePanel extends JPanel implements KeyListener, MouseListener, ActionList
 		if (levelFinish) {
 			makeEnemies();
 		}
-		g.setFont(menuFont);
+		g.setFont(text);
 		g.setColor(Color.white);
+
+		if (enemyShoot) {
+			createEnemyBullets();
+			enemyShoot = false;
+			timer = new Timer();
+			toggle = new toggle(enemyShoot);
+			timer.schedule(toggle, 5000, 5000);
+		}
 
 		// testerBoss.move();
 		// g.drawString(testerBoss.getValue(), testerBoss.getX(), testerBoss.getY());
 		// testerBoss.attack();
 
 		// testerBoss.moveAttack();
-		for (Bullet n : bullets) {
-			g.drawString(Character.toString(n.getLetter()), n.getX(), n.getY());
-		}
 
 		for (int i = 0; i < 26; i++) {
 			LinkedList<enemy> current = enemies[i];
-			for (enemy n : current) {
-				//check= new Rectangle2D.Double(n.getX()-29,n.getY()-29,58,58);
+			for (Iterator<enemy> it = current.iterator(); it.hasNext();) {
+				enemy n = it.next();
+				// check= new Rectangle2D.Double(n.getX()-29,n.getY()-29,58,58);
 				n.move();
-				if (ship.contains(n.getX(),n.getY(),58,58)){
-					lives-=1;
-					if (lives==0){
-						//end screen;
+				if (ship.contains(n.getX(), n.getY(), 58, 58)) {
+					lives -= 1;
+					if (lives == 0) {
+						// end screen;
 					}
 				}
 			}
@@ -710,6 +743,12 @@ class GamePanel extends JPanel implements KeyListener, MouseListener, ActionList
 				g.setColor(Color.white);
 				g.drawString(n.getValue(), n.getX() + 4, n.getY() + 35);
 			}
+		}
+
+		for (Iterator<Bullet> it = bullets.iterator(); it.hasNext();) {
+			Bullet n = it.next();
+			g.drawString(Character.toString(n.getLetter()), n.getX(), n.getY());
+			n.move();
 		}
 
 		for (Iterator<enemy> it = dead.iterator(); it.hasNext();) {
@@ -771,12 +810,12 @@ class GamePanel extends JPanel implements KeyListener, MouseListener, ActionList
 		g.drawString("NEXT LEVEL", 240, 495);
 	}
 
-	public void drawBomb(Graphics g, int rad) {//super simple, just drawing an oval
+	public void drawBomb(Graphics g, int rad) {// super simple, just drawing an oval
 		g.setColor(Color.white);
 		g.drawOval(350 - rad, 850 - rad, rad * 2, rad * 2);
 	}
 
-	public void drawTarget(Graphics g, int rad, enemy e) {//super simple, just drawing an oval
+	public void drawTarget(Graphics g, int rad, enemy e) {// super simple, just drawing an oval
 		g.setColor(Color.orange);
 		g.drawOval(e.getX() - rad + 28, e.getY() - rad + 28, rad * 2, rad * 2);
 	}
@@ -792,10 +831,11 @@ class GamePanel extends JPanel implements KeyListener, MouseListener, ActionList
 	}
 
 	public void explode(Graphics g, enemy n) {
-		Image[] explosion = n.getPics();//making an image array of all the explosion sprites
-		n.addFrame();//adding to the enemies field value of frame which dictates which sprite to draw
-		g.drawImage(explosion[n.getFrame()], n.getX() - 28, n.getY() - 28, this);//drawing the picture
-		if (n.getFrame() == 5) {//if it reaches 5
+		Image[] explosion = n.getPics();// making an image array of all the explosion sprites
+		n.addFrame();// adding to the enemies field value of frame which dictates which sprite to
+						// draw
+		g.drawImage(explosion[n.getFrame()], n.getX() - 28, n.getY() - 28, this);// drawing the picture
+		if (n.getFrame() == 5) {// if it reaches 5
 			for (int i = 0; i < 26; i++) {
 				LinkedList<enemy> current = enemies[i];
 				if (current.contains(n)) {
@@ -806,7 +846,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener, ActionList
 	}
 	////////////////////// Math and Logic Functions//////////////////////
 
-	public double getAngle(int x, int y) {//trig
+	public double getAngle(int x, int y) {// trig
 		double diffx = 350 - x;
 		double diffy = 850 - y;
 		double ang = Math.atan(diffx / diffy);
@@ -814,11 +854,11 @@ class GamePanel extends JPanel implements KeyListener, MouseListener, ActionList
 	}
 
 	public void checkRad() {
-		for (int i = 0; i < 26; i++) {//going through our enemy list
+		for (int i = 0; i < 26; i++) {// going through our enemy list
 			LinkedList<enemy> current = enemies[i];
 			for (Iterator<enemy> it = current.iterator(); it.hasNext();) {
 				enemy n = it.next();
-				if (empRad.contains((n.getX() + 29), (n.getY() + 29)) && bombing) {//if its inside
+				if (empRad.contains((n.getX() + 29), (n.getY() + 29)) && bombing) {// if its inside
 					if (n.equals(activeTarget))
 						activeTarget = null;
 					it.remove();
@@ -827,7 +867,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener, ActionList
 		}
 	}
 
-	public static double round(double value, int places) {//from stack overflow
+	public static double round(double value, int places) {// from stack overflow
 		if (places < 0)
 			throw new IllegalArgumentException();
 
@@ -837,25 +877,25 @@ class GamePanel extends JPanel implements KeyListener, MouseListener, ActionList
 		return (double) tmp / factor;
 	}
 
-	public enemy getLowest(LinkedList<enemy> n) {//takes in LL as parameter
-		int max = n.get(0).getY();//setting a base max y value
+	public enemy getLowest(LinkedList<enemy> n) {// takes in LL as parameter
+		int max = n.get(0).getY();// setting a base max y value
 		enemy checker = n.get(0);
-		for (enemy check : n) {//goes through the LL
+		for (enemy check : n) {// goes through the LL
 			int distance = check.getY();
 			if (distance < 0) {
 
 			}
-			if (distance > max) {//if its lower reset the checker
+			if (distance > max) {// if its lower reset the checker
 				max = distance;
 				checker = check;
 			}
 		}
 
-		enemy lowest = checker;//returning lowest
+		enemy lowest = checker;// returning lowest
 		return lowest;
 	}
 
-	public ArrayList<enemy> getAllEnemies(){//adds all enemies into one arraylist
+	public ArrayList<enemy> getAllEnemies() {// adds all enemies into one arraylist
 		ArrayList<enemy> returning = new ArrayList<enemy>();
 		for (int i = 0; i < 26; i++) {
 			LinkedList<enemy> current = enemies[i];
@@ -878,26 +918,36 @@ class GamePanel extends JPanel implements KeyListener, MouseListener, ActionList
 	}
 
 	public void target(char n) {
+		boolean bulletKilled = false;
 		if (levelFinish == false) {
 			int slot = (int) n - 97;// this is finding the index in the list, ascii codes for lower case start at
 									// 97, so thats why im subtracting
-			if (bullets.contains(n) == true) {// if its in this list which will be enemy bullets
-				bullets.remove(n);
-				return;// end the function here
-			}
 
-			else if (!enemies[slot].isEmpty()) {// if there's an enemy that starts with this character
-				activeTarget = getLowest(enemies[slot]);// getting the enemy that is the closest
-				if (activeTarget.getY() > -70 && activeTarget.getX() < 700 && activeTarget.getX() > 0) {
-					typing(n); // used later when im deleting and reorganizing
-					enemySlot = slot;//
-					newTarget = true;
+			if (bullets.size() > 0) {
+				for (Iterator<Bullet> it = bullets.iterator(); it.hasNext();) {
+					Bullet b = it.next();
+					if (b.getLetter() == n) {
+						it.remove();
+						bulletKilled = true;
+						break;
+					}
 				}
 			}
 
-			else {
-				levelWrong++;
-				wrong++;
+			if (bulletKilled == false) {
+				if (!enemies[slot].isEmpty()) {// if there's an enemy that starts with this character
+					activeTarget = getLowest(enemies[slot]);// getting the enemy that is the closest
+					if (activeTarget.getY() > -70 && activeTarget.getX() < 700 && activeTarget.getX() > 0) {
+						typing(n); // used later when im deleting and reorganizing
+						enemySlot = slot;//
+						newTarget = true;
+					}
+				}
+
+				else {
+					levelWrong++;
+					wrong++;
+				}
 			}
 		}
 	}
@@ -910,7 +960,9 @@ class GamePanel extends JPanel implements KeyListener, MouseListener, ActionList
 
 			else {
 				// newTarget=false;
-				if (activeTarget.getValue().charAt(0) == n && !activeTarget.getValue().equals("")) { //if you enter a character correctly
+				if (activeTarget.getValue().charAt(0) == n && !activeTarget.getValue().equals("")) { // if you enter a
+																										// character
+																										// correctly
 					attack newAttack = new attack(activeTarget.getX() + 29, activeTarget.getY() + 58);
 					newAttack.setOwner(activeTarget);
 					b.add(newAttack);
@@ -936,7 +988,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener, ActionList
 			counter++;
 			levelCounter++;
 			boolean inScreen = false;
-			for (int i = 0; i < 26; i++) {//this loop helps prevent an error we were having
+			for (int i = 0; i < 26; i++) {// this loop helps prevent an error we were having
 				LinkedList<enemy> current = enemies[i];
 				for (enemy x : current) {
 					if (x.getY() > -70) {
@@ -946,7 +998,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener, ActionList
 					}
 				}
 			}
-			//calls typing for each letter value
+			// calls typing for each letter value
 			if (inScreen) {
 				if (e.getKeyCode() == KeyEvent.VK_A) {
 					typing('a');
@@ -1058,8 +1110,8 @@ class GamePanel extends JPanel implements KeyListener, MouseListener, ActionList
 					screen = button.getVal();
 					if (screen == "Play Game") {
 						timer = new Timer();
-						pewpew = new pewpew(enemyShoot, getAllEnemies(), bullets);
-						timer.schedule(pewpew, (long) (5 - Math.pow(1.3, level - 1)));
+						toggle = new toggle(enemyShoot);
+						timer.schedule(toggle, 2500, 2500);
 					}
 
 				}
@@ -1104,7 +1156,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener, ActionList
 
 /////////////////////////// Classes//////////////////////////
 
-class Base {//base class that has setters getters
+class Base {// base class that has setters getters
 	protected double x;
 	protected double y;
 	public Rectangle hitbox = new Rectangle((int) x, (int) y, 5, 5);
@@ -1129,7 +1181,7 @@ class Base {//base class that has setters getters
 	}
 }
 
-class Bullet extends Base {//this is for our enemies when they shoot
+class Bullet extends Base {// this is for our enemies when they shoot
 	private char letter;
 	private int destX, destY;
 	private double rad, dx, dy;
@@ -1139,8 +1191,8 @@ class Bullet extends Base {//this is for our enemies when they shoot
 		return letter;
 	}
 
-	public Bullet(char n, int x, int y, int destX, int destY) {//we take this many parameters and we can move them
-	//independtely without needing to access through the enemies
+	public Bullet(char n, int x, int y, int destX, int destY) {// we take this many parameters and we can move them
+		// independtely without needing to access through the enemies
 		super(x, y);
 		letter = n;
 		this.destX = destX;
@@ -1168,7 +1220,8 @@ class Bullet extends Base {//this is for our enemies when they shoot
 
 }
 
-class attack extends Base {//the player attacks which just fly, simple functions that reoccur with everything else
+class attack extends Base {// the player attacks which just fly, simple functions that reoccur with
+							// everything else
 	double rad, dx, dy;
 	int destx, desty;
 	enemy owner;
@@ -1209,7 +1262,7 @@ class attack extends Base {//the player attacks which just fly, simple functions
 }
 
 class enemy extends Base {
-	//basic setters getters, nothing advanced
+	// basic setters getters, nothing advanced
 	private String value;
 	private int type;
 	private int score;
@@ -1229,9 +1282,7 @@ class enemy extends Base {
 		dy = Math.cos(rad) / 11;
 		score = value.length();
 		for (int i = 0; i < 13; i++) {
-			explosion[i] = new ImageIcon(
-					"tile" + i
-							+ ".png").getImage();
+			explosion[i] = new ImageIcon("tile" + i + ".png").getImage();
 		}
 	}
 
@@ -1359,6 +1410,22 @@ class circle {
 	}
 }
 
+class toggle extends TimerTask {
+	private boolean b;
+
+	public toggle(boolean b) {
+		this.b = b;
+	}
+
+	public void run() {
+		b = !b;
+	}
+
+	public boolean getShoot() {
+		return b;
+	}
+}
+
 class pewpew extends TimerTask {
 	private boolean timesup;
 	private ArrayList<enemy> allOptions;
@@ -1368,26 +1435,31 @@ class pewpew extends TimerTask {
 	Random rand = new Random();
 	int random = (int) (rand.nextInt((characters.length)));
 
-	public pewpew(boolean timesup,ArrayList<enemy> allOptions,ArrayList<Bullet> bullets) {
-		this.timesup=timesup;
-		this.allOptions=allOptions;
-		this.bullets=bullets;
+	public pewpew(boolean timesup, ArrayList<enemy> allOptions, ArrayList<Bullet> bullets) {
+		this.timesup = timesup;
+		this.allOptions = allOptions;
+		this.bullets = bullets;
 		Collections.shuffle(allOptions);
 	}
 
 	public void run() {
 		if (timesup) {
-			if (allOptions.size()>=3){
-				for (int i=0;i<2;i++){
-					bullets.add(new Bullet(characters[random],allOptions.get(i).getX(),allOptions.get(i).getY(),350,850));
+			if (allOptions.size() >= 3) {
+				for (int i = 0; i < 2; i++) {
+					bullets.add(new Bullet(characters[random], allOptions.get(i).getX(), allOptions.get(i).getY(), 350,
+							850));
+				}
+			} else {
+				for (int i = 0; i < allOptions.size(); i++) {
+					bullets.add(new Bullet(characters[random], allOptions.get(i).getX(), allOptions.get(i).getY(), 350,
+							850));
 				}
 			}
-			else{
-				for (int i=0;i<allOptions.size();i++){
-					bullets.add(new Bullet(characters[random],allOptions.get(i).getX(),allOptions.get(i).getY(),350,850));
-				}
-			}
+			timesup = false;
 		}
-		timesup = false;
+
+		else {
+			timesup = true;
+		}
 	}
 }
