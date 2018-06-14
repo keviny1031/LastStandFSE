@@ -13,6 +13,7 @@ import java.math.*;
 import java.awt.Graphics;
 import java.awt.geom.AffineTransform;
 import java.awt.image.AffineTransformOp;
+import java.awt.image.ImageObserver;
 import java.awt.geom.Rectangle2D;
 
 public class LastStand extends JFrame {
@@ -103,11 +104,11 @@ class GamePanel extends JPanel implements KeyListener, MouseListener, ActionList
 		keys = new boolean[KeyEvent.KEY_LAST + 1];
 		logo = new ImageIcon("logo.png").getImage();
 		ship1 = new ImageIcon("ship1.gif").getImage();
-		ship2 = new ImageIcon("ship2.gif").getImage();
+		ship2 = new ImageIcon("C:\\Users\\kkyyh\\eclipse-workspace\\School 17-18\\src\\FSE\\images\\sprites\\ship2.gif").getImage();
 		ship3 = new ImageIcon("ship3.gif").getImage();
-		ship4 = new ImageIcon("ship4.gif").getImage();
+		ship4 = new ImageIcon("C:\\Users\\kkyyh\\eclipse-workspace\\School 17-18\\src\\FSE\\images\\sprites\\ship4.gif").getImage();
 		ship5 = new ImageIcon("ship5.gif").getImage();
-		shot2 = new ImageIcon("shot2.png").getImage();
+		shot2 = new ImageIcon("C:\\Users\\kkyyh\\eclipse-workspace\\School 17-18\\src\\FSE\\images\\sprites\\shot2.png").getImage();
 		initEnemies();
 		addKeyListener(this);
 		addMouseListener(this);
@@ -1210,6 +1211,10 @@ class Bullet extends Base {// this is for our enemies when they shoot
 		}
 	}
 
+	public void explode(Graphics g, ImageObserver io) {
+		
+	}
+	
 	public enemy getOwner() {
 		return owner;
 	}
