@@ -15,8 +15,6 @@ import java.awt.geom.AffineTransform;
 import java.awt.image.AffineTransformOp;
 import java.awt.image.ImageObserver;
 import java.awt.geom.Rectangle2D;
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
 
 public class LastStand extends JFrame {
 	GamePanel game;
@@ -51,7 +49,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener, ActionList
 	private char[] characters = new char[] { 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o',
 			'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z' };
 	private LinkedList<enemy>[] enemies = new LinkedList[26];// enemies and objects
-	public ArrayList<enemy> bullets = new ArrayList<enemy>();
+	private ArrayList<enemy> bullets = new ArrayList<enemy>();
 	private ArrayList<attack> b = new ArrayList<attack>();
 	private ArrayList<String> basic = new ArrayList<String>();
 	private ArrayList<String> intermediate = new ArrayList<String>();
@@ -60,7 +58,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener, ActionList
 	private Rectangle2D ship = new Rectangle2D.Double(317, 820, 64, 55);
 	private Rectangle2D check;
 	private enemy activeTarget = null;
-	private int enemySlot = 0;
+	private int enemySlot = 0, highestScore;
 
 	private Image logo;// pics
 	private Image ship1;
@@ -83,7 +81,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener, ActionList
 	@SuppressWarnings("unchecked")
 	private int level = 2, bombRad, filledEnemies;
 	private int targetRad = 100;
-	private boolean levelFinish = false, bombing, enemyShoot = false, paused = false;
+	private boolean levelFinish = false, bombing, enemyShoot = false, paused = false; 
 	private toggle toggle;
 	private int emps = 2;
 	private int lives = 2;
@@ -176,14 +174,14 @@ class GamePanel extends JPanel implements KeyListener, MouseListener, ActionList
 		enemies[pos].add(n);
 	}
 
-	public void initEnemies() throws IOException {
+	public void initEnemies() throws IOException{
 		for (int i = 0; i < 26; i++) {
 			enemies[i] = new LinkedList<enemy>();
 		}
 
 		Scanner stdin = new Scanner(System.in);
 		Scanner inFile = new Scanner(new BufferedReader(// scanning and opening the word textfile
-				new FileReader("words.txt")));
+				new FileReader("C:\\Users\\kkyyh\\eclipse-workspace\\School 17-18\\src\\FSE\\files\\words.txt")));
 		while (inFile.hasNextLine()) {// while theres more to read
 			String word = inFile.nextLine();
 			if (isAlpha(word)) {// checking if theres any special characters
@@ -576,12 +574,18 @@ class GamePanel extends JPanel implements KeyListener, MouseListener, ActionList
 
 	////////////////////// Graphics/////////////////////////
 
-	public void paintComponent(Graphics g) {
+	public void paintComponent(Graphics g){
 		super.paintComponent(g);
 		if (screen == "menu")
 			menu(g);
 		else if (screen == "Play Game")
-			game(g);
+			try {
+				game(g);
+			} catch (NumberFormatException e) {
+				e.printStackTrace();
+			} catch (IOException e) {
+				e.printStackTrace();
+			}
 		else if (screen == "Instructions")
 			instructions(g);
 		else if (screen == "High Scores")
@@ -642,8 +646,14 @@ class GamePanel extends JPanel implements KeyListener, MouseListener, ActionList
 			n.setBullet();
 		}
 	}
+	
+	public void clearAll() {
+		bullets.clear();
+		b.clear();
+		enemies = null;
+	}
 
-	public void game(Graphics g) {
+	public void game(Graphics g) throws NumberFormatException, IOException {
 		// calling everything, checking everything, running everything\
 		Graphics2D g2 = (Graphics2D) g;
 		enemyShoot = toggle.getShoot();
@@ -699,7 +709,11 @@ class GamePanel extends JPanel implements KeyListener, MouseListener, ActionList
 					if (ship.intersects(n.getX(), n.getY(), 58, 58)) {
 						lives -= 1;
 						if (lives <= 0) {
+							clearAll();
+							highScore();
 							screen = "end";
+							System.out.println(highestScore);
+							return;
 						}
 					}
 				}
@@ -768,7 +782,10 @@ class GamePanel extends JPanel implements KeyListener, MouseListener, ActionList
 				if (ship.intersects(n.getX(), n.getY(), 10, 10)) {
 					lives -= 1;
 					if (lives <= 0) {
-						endScreen(g);
+						clearAll();
+						highScore();
+						screen = "end";
+						return;
 					}
 				}
 			}
@@ -1206,12 +1223,12 @@ class GamePanel extends JPanel implements KeyListener, MouseListener, ActionList
 	}
 
 	public void highScore() throws IOException, NumberFormatException {
-		BufferedReader scoreFile = new BufferedReader(newFileReader("highscore.txt"));
+		BufferedReader scoreFile = new BufferedReader(new FileReader("C:\\Users\\kkyyh\\eclipse-workspace\\School 17-18\\src\\FSE\\files\\highscore.txt"));
 		String line = scoreFile.readLine();
 		highestScore = Integer.parseInt(line);
 		scoreFile.close();
 		
-		BufferedWriter scoreFile2 = new BufferedWriter(new FileWriter("highscore.txt"));
+		BufferedWriter scoreFile2 = new BufferedWriter(new FileWriter("C:\\Users\\kkyyh\\eclipse-workspace\\School 17-18\\src\\FSE\\files\\highscore.txt"));
 		
 		if (score > highestScore){
 			highestScore = score;
@@ -1425,9 +1442,9 @@ class enemy extends Base {
 	public void move() {
 		if (y < 850) {
 			if (isBullet == true) {
-				translate(dx * 3, dy * 3);
+				translate(dx * 2, dy * 2);
 			}
-			translate(dx * 3, dy * 3);
+			translate(dx, dy);
 		}
 	}
 
