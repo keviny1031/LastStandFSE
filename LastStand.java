@@ -755,18 +755,18 @@ class GamePanel extends JPanel implements KeyListener, MouseListener, ActionList
 			}
 		}
 
-	/*	for (Iterator<enemy> it = bullets.iterator(); it.hasNext();) {
+		for (Iterator<enemy> it = bullets.iterator(); it.hasNext();) {
 			enemy n = it.next();
 			g.setColor(Color.white);
 			g.drawString(n.getValue(), n.getX(), n.getY());
 			n.move();
-			if (ship.intersects(n.getX(), n.getY(), 2, 2)) {
+			if (ship.intersects(n.getX(), n.getY(), 10, 10)) {
 					lives -= 1;
 					if (lives <= 0) {
 						endScreen(g);
 					}
 				}
-		}*/
+		}
 
 		for (Iterator<enemy> it = dead.iterator(); it.hasNext();) {
 			enemy n = it.next();
