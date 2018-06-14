@@ -586,6 +586,12 @@ class GamePanel extends JPanel implements KeyListener, MouseListener, ActionList
 			hsScreen(g);
 		else if (screen == "next")
 			next(g);
+		else if (screen == "Pause"){
+			pause(g);
+		}
+		else if (screen == "end"){
+			endScreen(g);
+		}
 		else
 			frame.dispose();
 		repaint();
@@ -694,7 +700,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener, ActionList
 				if (ship.intersects(n.getX(), n.getY(), 58, 58)) {
 					lives -= 1;
 					if (lives <= 0) {
-						endScreen(g);
+						screen = "end";
 					}
 				}
 			}
@@ -829,6 +835,11 @@ class GamePanel extends JPanel implements KeyListener, MouseListener, ActionList
 		g.fillRect(220, 450, 280, 60);
 		g.setColor(Color.black);
 		g.drawString("NEXT LEVEL", 240, 495);
+	}
+	
+	public void pause(Graphics g){
+		g.setColor(new Color(255, 255, 255, 1));
+		g.fillRect(0, 0, 700, 930);
 	}
 
 	public void drawBomb(Graphics g, int rad) {// super simple, just drawing an oval
@@ -1024,103 +1035,112 @@ class GamePanel extends JPanel implements KeyListener, MouseListener, ActionList
 	/////////////////////// KeyPressed,Interactions////////////////////////
 
 	public void keyPressed(KeyEvent e) {
-		if (screen == "Play Game") {
+		if (e.getKeyCode() == KeyEvent.VK_ESCAPE){
+			if (screen == "Play Game"){
+				screen = "Pause";
+			}
+			
+			else if (screen == "Pause"){
+				screen = "Play Game";
+			}
+		}
+		else if (screen == "Play Game") {
 			// inScreenCount=0;
-			counter++;
-			levelCounter++;
-			boolean inScreen = false;
-			for (int i = 0; i < 26; i++) {// this loop helps prevent an error we were having
-				LinkedList<enemy> current = enemies[i];
-				for (enemy x : current) {
-					if (x.getY() > -70) {
-						if (x.getX() > 0 && x.getX() < 700) {
-							inScreen = true;
+				counter++;
+				levelCounter++;
+				boolean inScreen = false;
+				for (int i = 0; i < 26; i++) {// this loop helps prevent an error we were having
+					LinkedList<enemy> current = enemies[i];
+					for (enemy x : current) {
+						if (x.getY() > -70) {
+							if (x.getX() > 0 && x.getX() < 700) {
+								inScreen = true;
+							}
 						}
 					}
 				}
-			}
-			// calls typing for each letter value
-			if (inScreen) {
-				if (e.getKeyCode() == KeyEvent.VK_A) {
-					typing('a');
+				// calls typing for each letter value
+				if (inScreen) {
+					if (e.getKeyCode() == KeyEvent.VK_A) {
+						typing('a');
+					}
+					if (e.getKeyCode() == KeyEvent.VK_B) {
+						typing('b');
+					}
+					if (e.getKeyCode() == KeyEvent.VK_C) {
+						typing('c');
+					}
+					if (e.getKeyCode() == KeyEvent.VK_D) {
+						typing('d');
+					}
+					if (e.getKeyCode() == KeyEvent.VK_E) {
+						typing('e');
+					}
+					if (e.getKeyCode() == KeyEvent.VK_F) {
+						typing('f');
+					}
+					if (e.getKeyCode() == KeyEvent.VK_G) {
+						typing('g');
+					}
+					if (e.getKeyCode() == KeyEvent.VK_H) {
+						typing('h');
+					}
+					if (e.getKeyCode() == KeyEvent.VK_I) {
+						typing('i');
+					}
+					if (e.getKeyCode() == KeyEvent.VK_J) {
+						typing('j');
+					}
+					if (e.getKeyCode() == KeyEvent.VK_K) {
+						typing('k');
+					}
+					if (e.getKeyCode() == KeyEvent.VK_L) {
+						typing('l');
+					}
+					if (e.getKeyCode() == KeyEvent.VK_M) {
+						typing('m');
+					}
+					if (e.getKeyCode() == KeyEvent.VK_N) {
+						typing('n');
+					}
+					if (e.getKeyCode() == KeyEvent.VK_O) {
+						typing('o');
+					}
+					if (e.getKeyCode() == KeyEvent.VK_P) {
+						typing('p');
+					}
+					if (e.getKeyCode() == KeyEvent.VK_Q) {
+						typing('q');
+					}
+					if (e.getKeyCode() == KeyEvent.VK_R) {
+						typing('r');
+					}
+					if (e.getKeyCode() == KeyEvent.VK_S) {
+						typing('s');
+					}
+					if (e.getKeyCode() == KeyEvent.VK_T) {
+						typing('t');
+					}
+					if (e.getKeyCode() == KeyEvent.VK_U) {
+						typing('u');
+					}
+					if (e.getKeyCode() == KeyEvent.VK_V) {
+						typing('v');
+					}
+					if (e.getKeyCode() == KeyEvent.VK_W) {
+						typing('w');
+					}
+					if (e.getKeyCode() == KeyEvent.VK_X) {
+						typing('x');
+					}
+					if (e.getKeyCode() == KeyEvent.VK_Y) {
+						typing('y');
+					}
+					if (e.getKeyCode() == KeyEvent.VK_Z) {
+						typing('z');
+					}
 				}
-				if (e.getKeyCode() == KeyEvent.VK_B) {
-					typing('b');
-				}
-				if (e.getKeyCode() == KeyEvent.VK_C) {
-					typing('c');
-				}
-				if (e.getKeyCode() == KeyEvent.VK_D) {
-					typing('d');
-				}
-				if (e.getKeyCode() == KeyEvent.VK_E) {
-					typing('e');
-				}
-				if (e.getKeyCode() == KeyEvent.VK_F) {
-					typing('f');
-				}
-				if (e.getKeyCode() == KeyEvent.VK_G) {
-					typing('g');
-				}
-				if (e.getKeyCode() == KeyEvent.VK_H) {
-					typing('h');
-				}
-				if (e.getKeyCode() == KeyEvent.VK_I) {
-					typing('i');
-				}
-				if (e.getKeyCode() == KeyEvent.VK_J) {
-					typing('j');
-				}
-				if (e.getKeyCode() == KeyEvent.VK_K) {
-					typing('k');
-				}
-				if (e.getKeyCode() == KeyEvent.VK_L) {
-					typing('l');
-				}
-				if (e.getKeyCode() == KeyEvent.VK_M) {
-					typing('m');
-				}
-				if (e.getKeyCode() == KeyEvent.VK_N) {
-					typing('n');
-				}
-				if (e.getKeyCode() == KeyEvent.VK_O) {
-					typing('o');
-				}
-				if (e.getKeyCode() == KeyEvent.VK_P) {
-					typing('p');
-				}
-				if (e.getKeyCode() == KeyEvent.VK_Q) {
-					typing('q');
-				}
-				if (e.getKeyCode() == KeyEvent.VK_R) {
-					typing('r');
-				}
-				if (e.getKeyCode() == KeyEvent.VK_S) {
-					typing('s');
-				}
-				if (e.getKeyCode() == KeyEvent.VK_T) {
-					typing('t');
-				}
-				if (e.getKeyCode() == KeyEvent.VK_U) {
-					typing('u');
-				}
-				if (e.getKeyCode() == KeyEvent.VK_V) {
-					typing('v');
-				}
-				if (e.getKeyCode() == KeyEvent.VK_W) {
-					typing('w');
-				}
-				if (e.getKeyCode() == KeyEvent.VK_X) {
-					typing('x');
-				}
-				if (e.getKeyCode() == KeyEvent.VK_Y) {
-					typing('y');
-				}
-				if (e.getKeyCode() == KeyEvent.VK_Z) {
-					typing('z');
-				}
-			}
-
+	
 			if (e.getKeyCode() == KeyEvent.VK_SPACE) {
 				if (!bombing && emps > 0) {
 					emps--;
