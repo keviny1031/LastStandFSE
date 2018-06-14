@@ -166,7 +166,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener, ActionList
 
 	public int randY(int level) {// returns a random y value above the screen
 		Random rand = new Random();
-		return -50 - rand.nextInt(226) - level * 25;
+		return -50 - rand.nextInt(226) - (level * 25);
 	}
 
 	public void addEnemy(enemy n) {
@@ -622,17 +622,17 @@ class GamePanel extends JPanel implements KeyListener, MouseListener, ActionList
 			for (int i = 0; i < 2; i++) {
 				int random = (int) (rand.nextInt((characters.length)));
 				bullets.add(
-						new enemy("n", allOptions.get(i).getX(), allOptions.get(i).getY()));
+						new enemy(Character.toString(characters[random]), allOptions.get(i).getX(), allOptions.get(i).getY()));
 			}
 		} else {
 			for (int i = 0; i < allOptions.size(); i++) {
 				int random = (int) (rand.nextInt((characters.length)));
 				bullets.add(
-						new enemy("n", allOptions.get(i).getX(), allOptions.get(i).getY()));
+						new enemy(Character.toString(characters[random]), allOptions.get(i).getX(), allOptions.get(i).getY()));
 
 			}
 		}
-		
+
 		for (Iterator<enemy> it = bullets.iterator(); it.hasNext();) {
 			enemy n = it.next();
 			n.setBullet();
@@ -661,6 +661,8 @@ class GamePanel extends JPanel implements KeyListener, MouseListener, ActionList
 		}
 
 		g.drawImage(ship2, 317, 820, this);
+		g.setColor(Color.red);
+		g.fillRect(317,820,64,55);
 		if (levelFinish) {
 			makeEnemies();
 		}
@@ -687,7 +689,9 @@ class GamePanel extends JPanel implements KeyListener, MouseListener, ActionList
 				enemy n = it.next();
 				// check= new Rectangle2D.Double(n.getX()-29,n.getY()-29,58,58);
 				n.move();
-				if (ship.contains(n.getX()-29, n.getY()-29, 58, 58)) {
+				g.setColor(Color.red);
+				g.fillRect(n.getX(),n.getY(),58,58);
+				if (ship.intersects(n.getX(), n.getY(), 58, 58)) {
 					lives -= 1;
 					if (lives <= 0) {
 						endScreen(g);
@@ -751,18 +755,18 @@ class GamePanel extends JPanel implements KeyListener, MouseListener, ActionList
 			}
 		}
 
-		for (Iterator<enemy> it = bullets.iterator(); it.hasNext();) {
+	/*	for (Iterator<enemy> it = bullets.iterator(); it.hasNext();) {
 			enemy n = it.next();
 			g.setColor(Color.white);
 			g.drawString(n.getValue(), n.getX(), n.getY());
 			n.move();
-			if (ship.contains(n.getX()-29, n.getY()-29, 58, 58)) {
+			if (ship.intersects(n.getX(), n.getY(), 2, 2)) {
 					lives -= 1;
 					if (lives <= 0) {
 						endScreen(g);
 					}
 				}
-		}
+		}*/
 
 		for (Iterator<enemy> it = dead.iterator(); it.hasNext();) {
 			enemy n = it.next();
@@ -785,6 +789,10 @@ class GamePanel extends JPanel implements KeyListener, MouseListener, ActionList
 		for (LinkedList<enemy> enemyList : enemies) {
 			if (!enemyList.isEmpty())
 				filledEnemies++;
+		}
+
+		for (enemy enemy : bullets){
+			filledEnemies++;
 		}
 
 		if (filledEnemies < 1) {
@@ -842,7 +850,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener, ActionList
 		g.setColor(Color.yellow);
 		g.fillRect(0, 0, 700, 930);
 	}
-	
+
 	public void endScreen(Graphics g) {
 		g.setColor(Color.yellow);
 		g.fillRect(0, 0, 700, 930);
@@ -852,7 +860,13 @@ class GamePanel extends JPanel implements KeyListener, MouseListener, ActionList
 		Image[] explosion = n.getPics();// making an image array of all the explosion sprites
 		n.addFrame();// adding to the enemies field value of frame which dictates which sprite to
 						// draw
-		g.drawImage(explosion[n.getFrame()], n.getX() - 28, n.getY() - 28, this);// drawing the picture
+		if (n.isBullet()==true){
+			g.drawImage(explosion[n.getFrame()], n.getX() - 58, n.getY() - 58, this);// drawing the picture
+		}
+		else{
+			g.drawImage(explosion[n.getFrame()], n.getX() - 28, n.getY() - 28, this);// drawing the picture
+		}
+
 		if (n.getFrame() == 5) {// if it reaches 5
 			if (n.isBullet()==false){
 				for (int i = 0; i < 26; i++) {
@@ -950,8 +964,8 @@ class GamePanel extends JPanel implements KeyListener, MouseListener, ActionList
 				for (Iterator<enemy> it = bullets.iterator(); it.hasNext();) {
 					enemy b = it.next();
 					if (b.getValue().charAt(0) == n) {
-						/*it.remove();
-						bulletKilled = true;*/
+						//it.remove();
+						bulletKilled = true;
 						activeTarget=b;
 						activeTarget.remove();
 						break;
@@ -985,21 +999,23 @@ class GamePanel extends JPanel implements KeyListener, MouseListener, ActionList
 
 			else {
 				// newTarget=false;
-				if (activeTarget.getValue().charAt(0) == n && !activeTarget.getValue().equals("")) { // if you enter a
+				if (!activeTarget.getValue().equals("")){
+					if (activeTarget.getValue().charAt(0) == n && !activeTarget.getValue().equals("")) { // if you enter a
 																										// character
 																										// correctly
-					attack newAttack = new attack(activeTarget.getX() + 29, activeTarget.getY() + 58);
-					newAttack.setOwner(activeTarget);
-					b.add(newAttack);
-					activeTarget.addAttack(newAttack);
-					activeTarget.remove();// removes first letter
-					counter++;
-					// score
-					// target(n);
-				} else {
-					// counter++;
-					wrong++;
-					levelWrong++;
+						attack newAttack = new attack(activeTarget.getX() + 29, activeTarget.getY() + 58);
+						newAttack.setOwner(activeTarget);
+						b.add(newAttack);
+						activeTarget.addAttack(newAttack);
+						activeTarget.remove();// removes first letter
+						counter++;
+						// score
+						// target(n);
+					} else {
+						// counter++;
+						wrong++;
+						levelWrong++;
+					}
 				}
 			}
 		}
@@ -1236,9 +1252,9 @@ class Bullet extends Base {// this is for our enemies when they shoot
 	}
 
 	public void explode(Graphics g, ImageObserver io) {
-		
+
 	}
-	
+
 	public enemy getOwner() {
 		return owner;
 	}
@@ -1305,8 +1321,8 @@ class enemy extends Base {
 	public enemy(String value, int x, int y) {
 		super(x + 29, y + 29);
 		this.value = value;
-		double diffx = 335 - x;
-		double diffy = 835 - y;
+		double diffx = 310 - x;
+		double diffy = 810 - y;
 		rad = Math.atan(diffx / diffy);
 		dx = Math.sin(rad) / 11;
 		dy = Math.cos(rad) / 11;
@@ -1319,11 +1335,11 @@ class enemy extends Base {
 	public Image[] getPics() {
 		return explosion;
 	}
-	
+
 	public void setBullet(){
 		isBullet=true;
 	}
-	
+
 	public boolean isBullet(){
 		return isBullet;
 	}
@@ -1375,7 +1391,10 @@ class enemy extends Base {
 
 	public void move() {
 		if (y < 850) {
-			translate(dx, dy);
+			if (isBullet==true){
+				translate(dx*3,dy*3);
+			}
+			translate(dx*3, dy*3);
 		}
 	}
 
