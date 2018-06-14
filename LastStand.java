@@ -81,7 +81,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener, ActionList
 	@SuppressWarnings("unchecked")
 	private int level = 2, bombRad, filledEnemies;
 	private int targetRad = 100;
-	private boolean levelFinish = false, bombing, enemyShoot = false;
+	private boolean levelFinish = false, bombing, enemyShoot = false, paused = false;
 	private toggle toggle;
 	private int emps = 2;
 	private int lives = 2;
@@ -181,7 +181,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener, ActionList
 
 		Scanner stdin = new Scanner(System.in);
 		Scanner inFile = new Scanner(new BufferedReader(// scanning and opening the word textfile
-				new FileReader("words.txt")));
+				new FileReader("C:\\Users\\kkyyh\\eclipse-workspace\\School 17-18\\src\\FSE\\files\\words.txt")));
 		while (inFile.hasNextLine()) {// while theres more to read
 			String word = inFile.nextLine();
 			if (isAlpha(word)) {// checking if theres any special characters
@@ -586,13 +586,9 @@ class GamePanel extends JPanel implements KeyListener, MouseListener, ActionList
 			hsScreen(g);
 		else if (screen == "next")
 			next(g);
-		else if (screen == "Pause"){
-			pause(g);
-		}
-		else if (screen == "end"){
+		else if (screen == "end") {
 			endScreen(g);
-		}
-		else
+		} else
 			frame.dispose();
 		repaint();
 	}
@@ -627,14 +623,14 @@ class GamePanel extends JPanel implements KeyListener, MouseListener, ActionList
 		if (allOptions.size() >= 3) {
 			for (int i = 0; i < 2; i++) {
 				int random = (int) (rand.nextInt((characters.length)));
-				bullets.add(
-						new enemy(Character.toString(characters[random]), allOptions.get(i).getX(), allOptions.get(i).getY()));
+				bullets.add(new enemy(Character.toString(characters[random]), allOptions.get(i).getX(),
+						allOptions.get(i).getY()));
 			}
 		} else {
 			for (int i = 0; i < allOptions.size(); i++) {
 				int random = (int) (rand.nextInt((characters.length)));
-				bullets.add(
-						new enemy(Character.toString(characters[random]), allOptions.get(i).getX(), allOptions.get(i).getY()));
+				bullets.add(new enemy(Character.toString(characters[random]), allOptions.get(i).getX(),
+						allOptions.get(i).getY()));
 
 			}
 		}
@@ -668,7 +664,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener, ActionList
 
 		g.drawImage(ship2, 317, 820, this);
 		g.setColor(Color.red);
-		g.fillRect(317,820,64,55);
+		g.fillRect(317, 820, 64, 55);
 		if (levelFinish) {
 			makeEnemies();
 		}
@@ -696,7 +692,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener, ActionList
 				// check= new Rectangle2D.Double(n.getX()-29,n.getY()-29,58,58);
 				n.move();
 				g.setColor(Color.red);
-				g.fillRect(n.getX(),n.getY(),58,58);
+				g.fillRect(n.getX(), n.getY(), 58, 58);
 				if (ship.intersects(n.getX(), n.getY(), 58, 58)) {
 					lives -= 1;
 					if (lives <= 0) {
@@ -767,11 +763,11 @@ class GamePanel extends JPanel implements KeyListener, MouseListener, ActionList
 			g.drawString(n.getValue(), n.getX(), n.getY());
 			n.move();
 			if (ship.intersects(n.getX(), n.getY(), 10, 10)) {
-					lives -= 1;
-					if (lives <= 0) {
-						endScreen(g);
-					}
+				lives -= 1;
+				if (lives <= 0) {
+					endScreen(g);
 				}
+			}
 		}
 
 		for (Iterator<enemy> it = dead.iterator(); it.hasNext();) {
@@ -797,7 +793,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener, ActionList
 				filledEnemies++;
 		}
 
-		for (enemy enemy : bullets){
+		for (enemy enemy : bullets) {
 			filledEnemies++;
 		}
 
@@ -836,11 +832,6 @@ class GamePanel extends JPanel implements KeyListener, MouseListener, ActionList
 		g.setColor(Color.black);
 		g.drawString("NEXT LEVEL", 240, 495);
 	}
-	
-	public void pause(Graphics g){
-		g.setColor(new Color(255, 255, 255, 1));
-		g.fillRect(0, 0, 700, 930);
-	}
 
 	public void drawBomb(Graphics g, int rad) {// super simple, just drawing an oval
 		g.setColor(Color.white);
@@ -871,23 +862,21 @@ class GamePanel extends JPanel implements KeyListener, MouseListener, ActionList
 		Image[] explosion = n.getPics();// making an image array of all the explosion sprites
 		n.addFrame();// adding to the enemies field value of frame which dictates which sprite to
 						// draw
-		if (n.isBullet()==true){
+		if (n.isBullet() == true) {
 			g.drawImage(explosion[n.getFrame()], n.getX() - 58, n.getY() - 58, this);// drawing the picture
-		}
-		else{
+		} else {
 			g.drawImage(explosion[n.getFrame()], n.getX() - 28, n.getY() - 28, this);// drawing the picture
 		}
 
 		if (n.getFrame() == 5) {// if it reaches 5
-			if (n.isBullet()==false){
+			if (n.isBullet() == false) {
 				for (int i = 0; i < 26; i++) {
 					LinkedList<enemy> current = enemies[i];
 					if (current.contains(n)) {
 						current.remove(n);
 					}
 				}
-			}
-			else{
+			} else {
 				bullets.remove(n);
 			}
 		}
@@ -975,9 +964,9 @@ class GamePanel extends JPanel implements KeyListener, MouseListener, ActionList
 				for (Iterator<enemy> it = bullets.iterator(); it.hasNext();) {
 					enemy b = it.next();
 					if (b.getValue().charAt(0) == n) {
-						//it.remove();
+						// it.remove();
 						bulletKilled = true;
-						activeTarget=b;
+						activeTarget = b;
 						activeTarget.remove();
 						break;
 					}
@@ -1010,10 +999,11 @@ class GamePanel extends JPanel implements KeyListener, MouseListener, ActionList
 
 			else {
 				// newTarget=false;
-				if (!activeTarget.getValue().equals("")){
-					if (activeTarget.getValue().charAt(0) == n && !activeTarget.getValue().equals("")) { // if you enter a
-																										// character
-																										// correctly
+				if (!activeTarget.getValue().equals("")) {
+					if (activeTarget.getValue().charAt(0) == n && !activeTarget.getValue().equals("")) { // if you enter
+																											// a
+																											// character
+																											// correctly
 						attack newAttack = new attack(activeTarget.getX() + 29, activeTarget.getY() + 58);
 						newAttack.setOwner(activeTarget);
 						b.add(newAttack);
@@ -1035,112 +1025,105 @@ class GamePanel extends JPanel implements KeyListener, MouseListener, ActionList
 	/////////////////////// KeyPressed,Interactions////////////////////////
 
 	public void keyPressed(KeyEvent e) {
-		if (e.getKeyCode() == KeyEvent.VK_ESCAPE){
-			if (screen == "Play Game"){
-				screen = "Pause";
-			}
-			
-			else if (screen == "Pause"){
-				screen = "Play Game";
-			}
-		}
-		else if (screen == "Play Game") {
+		if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
+			paused = true;
+		} else if (screen == "Play Game") {
 			// inScreenCount=0;
-				counter++;
-				levelCounter++;
-				boolean inScreen = false;
-				for (int i = 0; i < 26; i++) {// this loop helps prevent an error we were having
-					LinkedList<enemy> current = enemies[i];
-					for (enemy x : current) {
-						if (x.getY() > -70) {
-							if (x.getX() > 0 && x.getX() < 700) {
-								inScreen = true;
-							}
+			counter++;
+			levelCounter++;
+			boolean inScreen = false;
+			for (int i = 0; i < 26; i++) {// this loop helps prevent an error we were having
+				LinkedList<enemy> current = enemies[i];
+				for (enemy x : current) {
+					if (x.getY() > -70) {
+						if (x.getX() > 0 && x.getX() < 700) {
+							inScreen = true;
 						}
 					}
 				}
-				// calls typing for each letter value
-				if (inScreen) {
-					if (e.getKeyCode() == KeyEvent.VK_A) {
-						typing('a');
-					}
-					if (e.getKeyCode() == KeyEvent.VK_B) {
-						typing('b');
-					}
-					if (e.getKeyCode() == KeyEvent.VK_C) {
-						typing('c');
-					}
-					if (e.getKeyCode() == KeyEvent.VK_D) {
-						typing('d');
-					}
-					if (e.getKeyCode() == KeyEvent.VK_E) {
-						typing('e');
-					}
-					if (e.getKeyCode() == KeyEvent.VK_F) {
-						typing('f');
-					}
-					if (e.getKeyCode() == KeyEvent.VK_G) {
-						typing('g');
-					}
-					if (e.getKeyCode() == KeyEvent.VK_H) {
-						typing('h');
-					}
-					if (e.getKeyCode() == KeyEvent.VK_I) {
-						typing('i');
-					}
-					if (e.getKeyCode() == KeyEvent.VK_J) {
-						typing('j');
-					}
-					if (e.getKeyCode() == KeyEvent.VK_K) {
-						typing('k');
-					}
-					if (e.getKeyCode() == KeyEvent.VK_L) {
-						typing('l');
-					}
-					if (e.getKeyCode() == KeyEvent.VK_M) {
-						typing('m');
-					}
-					if (e.getKeyCode() == KeyEvent.VK_N) {
-						typing('n');
-					}
-					if (e.getKeyCode() == KeyEvent.VK_O) {
-						typing('o');
-					}
-					if (e.getKeyCode() == KeyEvent.VK_P) {
-						typing('p');
-					}
-					if (e.getKeyCode() == KeyEvent.VK_Q) {
-						typing('q');
-					}
-					if (e.getKeyCode() == KeyEvent.VK_R) {
-						typing('r');
-					}
-					if (e.getKeyCode() == KeyEvent.VK_S) {
-						typing('s');
-					}
-					if (e.getKeyCode() == KeyEvent.VK_T) {
-						typing('t');
-					}
-					if (e.getKeyCode() == KeyEvent.VK_U) {
-						typing('u');
-					}
-					if (e.getKeyCode() == KeyEvent.VK_V) {
-						typing('v');
-					}
-					if (e.getKeyCode() == KeyEvent.VK_W) {
-						typing('w');
-					}
-					if (e.getKeyCode() == KeyEvent.VK_X) {
-						typing('x');
-					}
-					if (e.getKeyCode() == KeyEvent.VK_Y) {
-						typing('y');
-					}
-					if (e.getKeyCode() == KeyEvent.VK_Z) {
-						typing('z');
-					}
+			}
+			// calls typing for each letter value
+			if (inScreen) {
+				if (e.getKeyCode() == KeyEvent.VK_A) {
+					typing('a');
 				}
-	
+				if (e.getKeyCode() == KeyEvent.VK_B) {
+					typing('b');
+				}
+				if (e.getKeyCode() == KeyEvent.VK_C) {
+					typing('c');
+				}
+				if (e.getKeyCode() == KeyEvent.VK_D) {
+					typing('d');
+				}
+				if (e.getKeyCode() == KeyEvent.VK_E) {
+					typing('e');
+				}
+				if (e.getKeyCode() == KeyEvent.VK_F) {
+					typing('f');
+				}
+				if (e.getKeyCode() == KeyEvent.VK_G) {
+					typing('g');
+				}
+				if (e.getKeyCode() == KeyEvent.VK_H) {
+					typing('h');
+				}
+				if (e.getKeyCode() == KeyEvent.VK_I) {
+					typing('i');
+				}
+				if (e.getKeyCode() == KeyEvent.VK_J) {
+					typing('j');
+				}
+				if (e.getKeyCode() == KeyEvent.VK_K) {
+					typing('k');
+				}
+				if (e.getKeyCode() == KeyEvent.VK_L) {
+					typing('l');
+				}
+				if (e.getKeyCode() == KeyEvent.VK_M) {
+					typing('m');
+				}
+				if (e.getKeyCode() == KeyEvent.VK_N) {
+					typing('n');
+				}
+				if (e.getKeyCode() == KeyEvent.VK_O) {
+					typing('o');
+				}
+				if (e.getKeyCode() == KeyEvent.VK_P) {
+					typing('p');
+				}
+				if (e.getKeyCode() == KeyEvent.VK_Q) {
+					typing('q');
+				}
+				if (e.getKeyCode() == KeyEvent.VK_R) {
+					typing('r');
+				}
+				if (e.getKeyCode() == KeyEvent.VK_S) {
+					typing('s');
+				}
+				if (e.getKeyCode() == KeyEvent.VK_T) {
+					typing('t');
+				}
+				if (e.getKeyCode() == KeyEvent.VK_U) {
+					typing('u');
+				}
+				if (e.getKeyCode() == KeyEvent.VK_V) {
+					typing('v');
+				}
+				if (e.getKeyCode() == KeyEvent.VK_W) {
+					typing('w');
+				}
+				if (e.getKeyCode() == KeyEvent.VK_X) {
+					typing('x');
+				}
+				if (e.getKeyCode() == KeyEvent.VK_Y) {
+					typing('y');
+				}
+				if (e.getKeyCode() == KeyEvent.VK_Z) {
+					typing('z');
+				}
+			}
+
 			if (e.getKeyCode() == KeyEvent.VK_SPACE) {
 				if (!bombing && emps > 0) {
 					emps--;
@@ -1336,7 +1319,7 @@ class enemy extends Base {
 	private ArrayList<attack> targetedAttacks = new ArrayList<attack>();
 	double rad, dx, dy, frameRate = 0.0;
 	private boolean dead = false;
-	private boolean isBullet=false;
+	private boolean isBullet = false;
 
 	public enemy(String value, int x, int y) {
 		super(x + 29, y + 29);
@@ -1356,11 +1339,11 @@ class enemy extends Base {
 		return explosion;
 	}
 
-	public void setBullet(){
-		isBullet=true;
+	public void setBullet() {
+		isBullet = true;
 	}
 
-	public boolean isBullet(){
+	public boolean isBullet() {
 		return isBullet;
 	}
 
@@ -1411,10 +1394,10 @@ class enemy extends Base {
 
 	public void move() {
 		if (y < 850) {
-			if (isBullet==true){
-				translate(dx*3,dy*3);
+			if (isBullet == true) {
+				translate(dx * 3, dy * 3);
 			}
-			translate(dx*3, dy*3);
+			translate(dx * 3, dy * 3);
 		}
 	}
 
