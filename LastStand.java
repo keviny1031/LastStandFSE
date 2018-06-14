@@ -15,6 +15,8 @@ import java.awt.geom.AffineTransform;
 import java.awt.image.AffineTransformOp;
 import java.awt.image.ImageObserver;
 import java.awt.geom.Rectangle2D;
+import java.io.BufferedReader;
+import java.io.BufferedWriter;
 
 public class LastStand extends JFrame {
 	GamePanel game;
@@ -181,7 +183,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener, ActionList
 
 		Scanner stdin = new Scanner(System.in);
 		Scanner inFile = new Scanner(new BufferedReader(// scanning and opening the word textfile
-				new FileReader("C:\\Users\\kkyyh\\eclipse-workspace\\School 17-18\\src\\FSE\\files\\words.txt")));
+				new FileReader("words.txt")));
 		while (inFile.hasNextLine()) {// while theres more to read
 			String word = inFile.nextLine();
 			if (isAlpha(word)) {// checking if theres any special characters
@@ -647,167 +649,173 @@ class GamePanel extends JPanel implements KeyListener, MouseListener, ActionList
 		enemyShoot = toggle.getShoot();
 		int total = 0;
 		requestFocusInWindow();
-		g.setColor(Color.black);
-		g.fillRect(0, 0, 700, 930);
-		moveStars(starList, g);
-		if (bombing) {
-			bombRad++;
-			empRad.setRad(bombRad);
-			drawBomb(g, bombRad);
-			checkRad();
-			if (bombRad == 300) {
-				bombing = false;
-				bombRad = 0;
+		if (!paused){
+			g.setColor(Color.black);
+			g.fillRect(0, 0, 700, 930);
+			moveStars(starList, g);
+			if (bombing) {
+				bombRad++;
+				empRad.setRad(bombRad);
+				drawBomb(g, bombRad);
+				checkRad();
+				if (bombRad == 300) {
+					bombing = false;
+					bombRad = 0;
+				}
+				repaint();
 			}
-			repaint();
-		}
-
-		g.drawImage(ship2, 317, 820, this);
-		g.setColor(Color.red);
-		g.fillRect(317, 820, 64, 55);
-		if (levelFinish) {
-			makeEnemies();
-		}
-		g.setFont(text);
-		g.setColor(Color.white);
-
-		if (enemyShoot) {
-			createEnemyBullets();
-			enemyShoot = false;
-			timer = new Timer();
-			toggle = new toggle(enemyShoot);
-			timer.schedule(toggle, 5000, 5000);
-		}
-
-		// testerBoss.move();
-		// g.drawString(testerBoss.getValue(), testerBoss.getX(), testerBoss.getY());
-		// testerBoss.attack();
-
-		// testerBoss.moveAttack();
-
-		for (int i = 0; i < 26; i++) {
-			LinkedList<enemy> current = enemies[i];
-			for (Iterator<enemy> it = current.iterator(); it.hasNext();) {
-				enemy n = it.next();
-				// check= new Rectangle2D.Double(n.getX()-29,n.getY()-29,58,58);
-				n.move();
-				g.setColor(Color.red);
-				g.fillRect(n.getX(), n.getY(), 58, 58);
-				if (ship.intersects(n.getX(), n.getY(), 58, 58)) {
-					lives -= 1;
-					if (lives <= 0) {
-						screen = "end";
+	
+			g.drawImage(ship2, 317, 820, this);
+			g.setColor(Color.red);
+			g.fillRect(317, 820, 64, 55);
+			if (levelFinish) {
+				makeEnemies();
+			}
+			g.setFont(text);
+			g.setColor(Color.white);
+	
+			if (enemyShoot) {
+				createEnemyBullets();
+				enemyShoot = false;
+				timer = new Timer();
+				toggle = new toggle(enemyShoot);
+				timer.schedule(toggle, 5000, 5000);
+			}
+	
+			// testerBoss.move();
+			// g.drawString(testerBoss.getValue(), testerBoss.getX(), testerBoss.getY());
+			// testerBoss.attack();
+	
+			// testerBoss.moveAttack();
+	
+			for (int i = 0; i < 26; i++) {
+				LinkedList<enemy> current = enemies[i];
+				for (Iterator<enemy> it = current.iterator(); it.hasNext();) {
+					enemy n = it.next();
+					// check= new Rectangle2D.Double(n.getX()-29,n.getY()-29,58,58);
+					n.move();
+					g.setColor(Color.red);
+					g.fillRect(n.getX(), n.getY(), 58, 58);
+					if (ship.intersects(n.getX(), n.getY(), 58, 58)) {
+						lives -= 1;
+						if (lives <= 0) {
+							screen = "end";
+						}
 					}
 				}
 			}
-		}
-
-		for (Iterator<attack> it = b.iterator(); it.hasNext();) {
-			attack attack = it.next();
-			attack.move();
-			if (attack.check()) {
-				it.remove();
-				attack.getOwner().getAttacks().remove(attack);
-			}
-		}
-
-		if (activeTarget != null) {
-			if (newTarget) {
-				targetRad--;
-				target.setRad(targetRad);
-				drawTarget(g, targetRad, activeTarget);
-				if (targetRad == 0) {
-					newTarget = false;
-					targetRad = 100;
+	
+			for (Iterator<attack> it = b.iterator(); it.hasNext();) {
+				attack attack = it.next();
+				attack.move();
+				if (attack.check()) {
+					it.remove();
+					attack.getOwner().getAttacks().remove(attack);
 				}
 			}
-
-			g.setColor(Color.red);
-			g.drawLine(activeTarget.getX() + 29, activeTarget.getY() + 29, activeTarget.getX() + 29,
-					activeTarget.getY() + 29);
-
-			if (activeTarget.getValue().equals("")) {// if we finished typing that enemies word
-				// "chewbacca"
-				dead.add(activeTarget);
-				score += activeTarget.getScore() * level;
-				activeTarget = null;
+	
+			if (activeTarget != null) {
+				if (newTarget) {
+					targetRad--;
+					target.setRad(targetRad);
+					drawTarget(g, targetRad, activeTarget);
+					if (targetRad == 0) {
+						newTarget = false;
+						targetRad = 100;
+					}
+				}
+	
+				g.setColor(Color.red);
+				g.drawLine(activeTarget.getX() + 29, activeTarget.getY() + 29, activeTarget.getX() + 29,
+						activeTarget.getY() + 29);
+	
+				if (activeTarget.getValue().equals("")) {// if we finished typing that enemies word
+					// "chewbacca"
+					dead.add(activeTarget);
+					score += activeTarget.getScore() * level;
+					activeTarget = null;
+				}
 			}
-		}
-
-		for (attack current : b) {
-			g.drawImage(shot2, current.getX(), current.getY(), this);
-		}
-		/*
-		 * for (int i = 0; i < 26; i++) { LinkedList<enemy> current = enemies[i]; for
-		 * (enemy n : current) { double rotation = (Math.PI - getAngle(n.getX(),
-		 * n.getY())); double locX = n.getImage().getWidth(this) / 2; double locY =
-		 * n.getImage().getHeight(this) / 2; AffineTransform tx =
-		 * AffineTransform.getRotateInstance(rotation, locX, locY); g2.drawImage(ship4,
-		 * tx, this); } }
-		 */
-		g.setFont(text);
-		for (int i = 0; i < 26; i++) {
-			LinkedList<enemy> current = enemies[i];
-			for (enemy n : current) {
-				g.drawImage(ship4, n.getX(), n.getY(), this);
-				g.setColor(Color.black);
-				g.fillRect(n.getX(), n.getY() + 20, n.getValue().length() * 23, 20);
+	
+			for (attack current : b) {
+				g.drawImage(shot2, current.getX(), current.getY(), this);
+			}
+			/*
+			 * for (int i = 0; i < 26; i++) { LinkedList<enemy> current = enemies[i]; for
+			 * (enemy n : current) { double rotation = (Math.PI - getAngle(n.getX(),
+			 * n.getY())); double locX = n.getImage().getWidth(this) / 2; double locY =
+			 * n.getImage().getHeight(this) / 2; AffineTransform tx =
+			 * AffineTransform.getRotateInstance(rotation, locX, locY); g2.drawImage(ship4,
+			 * tx, this); } }
+			 */
+			g.setFont(text);
+			for (int i = 0; i < 26; i++) {
+				LinkedList<enemy> current = enemies[i];
+				for (enemy n : current) {
+					g.drawImage(ship4, n.getX(), n.getY(), this);
+					g.setColor(Color.black);
+					g.fillRect(n.getX(), n.getY() + 20, n.getValue().length() * 23, 20);
+					g.setColor(Color.white);
+					g.drawString(n.getValue(), n.getX() + 4, n.getY() + 35);
+				}
+			}
+	
+			for (Iterator<enemy> it = bullets.iterator(); it.hasNext();) {
+				enemy n = it.next();
 				g.setColor(Color.white);
-				g.drawString(n.getValue(), n.getX() + 4, n.getY() + 35);
-			}
-		}
-
-		for (Iterator<enemy> it = bullets.iterator(); it.hasNext();) {
-			enemy n = it.next();
-			g.setColor(Color.white);
-			g.drawString(n.getValue(), n.getX(), n.getY());
-			n.move();
-			if (ship.intersects(n.getX(), n.getY(), 10, 10)) {
-				lives -= 1;
-				if (lives <= 0) {
-					endScreen(g);
+				g.drawString(n.getValue(), n.getX(), n.getY());
+				n.move();
+				if (ship.intersects(n.getX(), n.getY(), 10, 10)) {
+					lives -= 1;
+					if (lives <= 0) {
+						endScreen(g);
+					}
 				}
 			}
-		}
-
-		for (Iterator<enemy> it = dead.iterator(); it.hasNext();) {
-			enemy n = it.next();
-			if (n.getAttacks().isEmpty())
-				explode(g, n);
-		}
-
-		/*
-		 * for (Iterator<enemy> it = current.iterator(); it.hasNext();) { enemy n =
-		 * it.next(); if (empRad.contains((n.getX() + 29), (n.getY() + 29)) && bombing)
-		 * { if (n.equals(activeTarget)) activeTarget = null; it.remove(); } }
-		 */
-		if (activeTarget != null) {
-			g.setColor(Color.red);
-			g.drawString(activeTarget.getValue(), activeTarget.getX() + 4, activeTarget.getY() + 35);
-		}
-
-		g.setColor(Color.white);
-		filledEnemies = 0;
-		for (LinkedList<enemy> enemyList : enemies) {
-			if (!enemyList.isEmpty())
+	
+			for (Iterator<enemy> it = dead.iterator(); it.hasNext();) {
+				enemy n = it.next();
+				if (n.getAttacks().isEmpty())
+					explode(g, n);
+			}
+	
+			/*
+			 * for (Iterator<enemy> it = current.iterator(); it.hasNext();) { enemy n =
+			 * it.next(); if (empRad.contains((n.getX() + 29), (n.getY() + 29)) && bombing)
+			 * { if (n.equals(activeTarget)) activeTarget = null; it.remove(); } }
+			 */
+			if (activeTarget != null) {
+				g.setColor(Color.red);
+				g.drawString(activeTarget.getValue(), activeTarget.getX() + 4, activeTarget.getY() + 35);
+			}
+	
+			g.setColor(Color.white);
+			filledEnemies = 0;
+			for (LinkedList<enemy> enemyList : enemies) {
+				if (!enemyList.isEmpty())
+					filledEnemies++;
+			}
+	
+			for (enemy enemy : bullets) {
 				filledEnemies++;
+			}
+	
+			if (filledEnemies < 1) {
+				bombing = false;
+				bombRad = 0;
+				emps = 2;
+				dead = new ArrayList<enemy>();
+				levelFinish = true;
+				activeTarget = null;
+				newTarget = true;
+				dead.clear();
+				level += 1;
+				screen = "next";
+			}
 		}
-
-		for (enemy enemy : bullets) {
-			filledEnemies++;
-		}
-
-		if (filledEnemies < 1) {
-			bombing = false;
-			bombRad = 0;
-			emps = 2;
-			dead = new ArrayList<enemy>();
-			levelFinish = true;
-			activeTarget = null;
-			newTarget = true;
-			dead.clear();
-			level += 1;
-			screen = "next";
+		else{
+			g.setColor(new Color(255, 255, 255, 1));
+			g.fillRect(0, 0, 700, 930);
 		}
 	}
 
@@ -1025,9 +1033,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener, ActionList
 	/////////////////////// KeyPressed,Interactions////////////////////////
 
 	public void keyPressed(KeyEvent e) {
-		if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
-			paused = true;
-		} else if (screen == "Play Game") {
+		if (screen == "Play Game") {
 			// inScreenCount=0;
 			counter++;
 			levelCounter++;
@@ -1043,7 +1049,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener, ActionList
 				}
 			}
 			// calls typing for each letter value
-			if (inScreen) {
+			if (inScreen && screen.equals("Play Game")) {
 				if (e.getKeyCode() == KeyEvent.VK_A) {
 					typing('a');
 				}
@@ -1124,6 +1130,9 @@ class GamePanel extends JPanel implements KeyListener, MouseListener, ActionList
 				}
 			}
 
+			if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
+				paused = !paused;
+			}
 			if (e.getKeyCode() == KeyEvent.VK_SPACE) {
 				if (!bombing && emps > 0) {
 					emps--;
@@ -1194,7 +1203,28 @@ class GamePanel extends JPanel implements KeyListener, MouseListener, ActionList
 	@Override
 	public void mouseMoved(MouseEvent arg0) {
 		// TODO Auto-generated method stub
+	}
 
+	public void highScore() throws IOException, NumberFormatException {
+		BufferedReader scoreFile = new BufferedReader(newFileReader("highscore.txt"));
+		String line = scoreFile.readLine();
+		highestScore = Integer.parseInt(line);
+		scoreFile.close();
+		
+		BufferedWriter scoreFile2 = new BufferedWriter(new FileWriter("highscore.txt"));
+		
+		if (score > highestScore){
+			highestScore = score;
+			String scoreStr = Integer.toString(score);
+			scoreFile2.write(scoreStr);
+			
+		}
+		else{
+			String scoreStr = Integer.toString(highestScore);
+			scoreFile2.write(scoreStr);
+			
+		}
+		scoreFile2.close(); 
 	}
 }
 
