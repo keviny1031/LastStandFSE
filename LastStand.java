@@ -49,7 +49,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener, ActionList
 	private char[] characters = new char[] { 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o',
 			'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z' };
 	private LinkedList<enemy>[] enemies = new LinkedList[26];// enemies and objects
-	public ArrayList<Bullet> bullets = new ArrayList<Bullet>();
+	public ArrayList<enemy> bullets = new ArrayList<enemy>();
 	private ArrayList<attack> b = new ArrayList<attack>();
 	private ArrayList<String> basic = new ArrayList<String>();
 	private ArrayList<String> intermediate = new ArrayList<String>();
@@ -104,11 +104,11 @@ class GamePanel extends JPanel implements KeyListener, MouseListener, ActionList
 		keys = new boolean[KeyEvent.KEY_LAST + 1];
 		logo = new ImageIcon("logo.png").getImage();
 		ship1 = new ImageIcon("ship1.gif").getImage();
-		ship2 = new ImageIcon("C:\\Users\\kkyyh\\eclipse-workspace\\School 17-18\\src\\FSE\\images\\sprites\\ship2.gif").getImage();
+		ship2 = new ImageIcon("ship2.gif").getImage();
 		ship3 = new ImageIcon("ship3.gif").getImage();
-		ship4 = new ImageIcon("C:\\Users\\kkyyh\\eclipse-workspace\\School 17-18\\src\\FSE\\images\\sprites\\ship4.gif").getImage();
+		ship4 = new ImageIcon("ship4.gif").getImage();
 		ship5 = new ImageIcon("ship5.gif").getImage();
-		shot2 = new ImageIcon("C:\\Users\\kkyyh\\eclipse-workspace\\School 17-18\\src\\FSE\\images\\sprites\\shot2.png").getImage();
+		shot2 = new ImageIcon("shot2.png").getImage();
 		initEnemies();
 		addKeyListener(this);
 		addMouseListener(this);
@@ -181,7 +181,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener, ActionList
 
 		Scanner stdin = new Scanner(System.in);
 		Scanner inFile = new Scanner(new BufferedReader(// scanning and opening the word textfile
-				new FileReader("C:\\Users\\kkyyh\\eclipse-workspace\\School 17-18\\src\\FSE\\files\\words.txt")));
+				new FileReader("words.txt")));
 		while (inFile.hasNextLine()) {// while theres more to read
 			String word = inFile.nextLine();
 			if (isAlpha(word)) {// checking if theres any special characters
@@ -622,15 +622,20 @@ class GamePanel extends JPanel implements KeyListener, MouseListener, ActionList
 			for (int i = 0; i < 2; i++) {
 				int random = (int) (rand.nextInt((characters.length)));
 				bullets.add(
-						new Bullet(characters[random], allOptions.get(i).getX(), allOptions.get(i).getY(), 350, 850));
+						new enemy("n", allOptions.get(i).getX(), allOptions.get(i).getY()));
 			}
 		} else {
 			for (int i = 0; i < allOptions.size(); i++) {
 				int random = (int) (rand.nextInt((characters.length)));
 				bullets.add(
-						new Bullet(characters[random], allOptions.get(i).getX(), allOptions.get(i).getY(), 350, 850));
+						new enemy("n", allOptions.get(i).getX(), allOptions.get(i).getY()));
 
 			}
+		}
+		
+		for (Iterator<enemy> it = bullets.iterator(); it.hasNext();) {
+			enemy n = it.next();
+			n.setBullet();
 		}
 	}
 
@@ -682,10 +687,10 @@ class GamePanel extends JPanel implements KeyListener, MouseListener, ActionList
 				enemy n = it.next();
 				// check= new Rectangle2D.Double(n.getX()-29,n.getY()-29,58,58);
 				n.move();
-				if (ship.contains(n.getX(), n.getY(), 58, 58)) {
+				if (ship.contains(n.getX()-29, n.getY()-29, 58, 58)) {
 					lives -= 1;
-					if (lives == 0) {
-						// end screen;
+					if (lives <= 0) {
+						endScreen(g);
 					}
 				}
 			}
@@ -746,10 +751,17 @@ class GamePanel extends JPanel implements KeyListener, MouseListener, ActionList
 			}
 		}
 
-		for (Iterator<Bullet> it = bullets.iterator(); it.hasNext();) {
-			Bullet n = it.next();
-			g.drawString(Character.toString(n.getLetter()), n.getX(), n.getY());
+		for (Iterator<enemy> it = bullets.iterator(); it.hasNext();) {
+			enemy n = it.next();
+			g.setColor(Color.white);
+			g.drawString(n.getValue(), n.getX(), n.getY());
 			n.move();
+			if (ship.contains(n.getX()-29, n.getY()-29, 58, 58)) {
+					lives -= 1;
+					if (lives <= 0) {
+						endScreen(g);
+					}
+				}
 		}
 
 		for (Iterator<enemy> it = dead.iterator(); it.hasNext();) {
@@ -830,6 +842,11 @@ class GamePanel extends JPanel implements KeyListener, MouseListener, ActionList
 		g.setColor(Color.yellow);
 		g.fillRect(0, 0, 700, 930);
 	}
+	
+	public void endScreen(Graphics g) {
+		g.setColor(Color.yellow);
+		g.fillRect(0, 0, 700, 930);
+	}
 
 	public void explode(Graphics g, enemy n) {
 		Image[] explosion = n.getPics();// making an image array of all the explosion sprites
@@ -837,11 +854,16 @@ class GamePanel extends JPanel implements KeyListener, MouseListener, ActionList
 						// draw
 		g.drawImage(explosion[n.getFrame()], n.getX() - 28, n.getY() - 28, this);// drawing the picture
 		if (n.getFrame() == 5) {// if it reaches 5
-			for (int i = 0; i < 26; i++) {
-				LinkedList<enemy> current = enemies[i];
-				if (current.contains(n)) {
-					current.remove(n);
+			if (n.isBullet()==false){
+				for (int i = 0; i < 26; i++) {
+					LinkedList<enemy> current = enemies[i];
+					if (current.contains(n)) {
+						current.remove(n);
+					}
 				}
+			}
+			else{
+				bullets.remove(n);
 			}
 		}
 	}
@@ -925,11 +947,13 @@ class GamePanel extends JPanel implements KeyListener, MouseListener, ActionList
 									// 97, so thats why im subtracting
 
 			if (bullets.size() > 0) {
-				for (Iterator<Bullet> it = bullets.iterator(); it.hasNext();) {
-					Bullet b = it.next();
-					if (b.getLetter() == n) {
-						it.remove();
-						bulletKilled = true;
+				for (Iterator<enemy> it = bullets.iterator(); it.hasNext();) {
+					enemy b = it.next();
+					if (b.getValue().charAt(0) == n) {
+						/*it.remove();
+						bulletKilled = true;*/
+						activeTarget=b;
+						activeTarget.remove();
 						break;
 					}
 				}
@@ -1276,12 +1300,13 @@ class enemy extends Base {
 	private ArrayList<attack> targetedAttacks = new ArrayList<attack>();
 	double rad, dx, dy, frameRate = 0.0;
 	private boolean dead = false;
+	private boolean isBullet=false;
 
 	public enemy(String value, int x, int y) {
 		super(x + 29, y + 29);
 		this.value = value;
-		double diffx = 350 - x;
-		double diffy = 850 - y;
+		double diffx = 335 - x;
+		double diffy = 835 - y;
 		rad = Math.atan(diffx / diffy);
 		dx = Math.sin(rad) / 11;
 		dy = Math.cos(rad) / 11;
@@ -1293,6 +1318,14 @@ class enemy extends Base {
 
 	public Image[] getPics() {
 		return explosion;
+	}
+	
+	public void setBullet(){
+		isBullet=true;
+	}
+	
+	public boolean isBullet(){
+		return isBullet;
 	}
 
 	public int getFrame() {
