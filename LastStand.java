@@ -43,8 +43,8 @@ class GamePanel extends JPanel implements KeyListener, MouseListener, ActionList
 	private String username, typedValue, screen = "menu";
 	private boolean[] keys;
 	private Image[] backgrounds = new Image[1];
-	private button[] buttons = new button[4];
-	private String[] buttonText = { "PLAY GAME", "INSTRUCTIONS", "HIGH SCORE", "QUIT" };
+	private button[] buttons = new button[3];
+	private String[] buttonText = { "PLAY GAME", "INSTRUCTIONS", "QUIT" };
 	private double[][] starList;
 	private char[] characters = new char[] { 'a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o',
 			'p', 'q', 'r', 's', 't', 'u', 'v', 'w', 'x', 'y', 'z' };
@@ -58,7 +58,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener, ActionList
 	private Rectangle2D ship = new Rectangle2D.Double(317, 820, 64, 55);
 	private Rectangle2D check;
 	private enemy activeTarget = null;
-	private int enemySlot = 0, highestScore;
+	private int enemySlot = 0;
 
 	private Image logo;// pics
 	private Image ship1;
@@ -70,8 +70,10 @@ class GamePanel extends JPanel implements KeyListener, MouseListener, ActionList
 
 	private circle empRad = new circle();// graphics
 	private circle target = new circle();
+	private circle bulletTarget = new circle(); 
 
 	private AffineTransform trans = new AffineTransform();// miscellaneous
+	private Font big = new Font("Rocket Propelled", Font.TRUETYPE_FONT, 70);
 	private Font menuFont = new Font("Rocket Propelled", Font.TRUETYPE_FONT, 40);
 	private Font text = new Font("Falling Sky", Font.TRUETYPE_FONT, 20);
 	private Font labelFont = new Font("Rocket Propelled", Font.TRUETYPE_FONT, 35);
@@ -82,12 +84,15 @@ class GamePanel extends JPanel implements KeyListener, MouseListener, ActionList
 	@SuppressWarnings("unchecked")
 	private int level = 2, bombRad, filledEnemies;
 	private int targetRad = 100;
+	private int bulletRad = 100;
 	private boolean levelFinish = false, bombing, enemyShoot = false, paused = false;
 	private toggle toggle;
 	private int emps = 2;
 	private int lives = 2;
+	private int highestScore=0; 
 
 	boolean newTarget = true;
+	boolean newBullet = true;
 	private bigBoss testerBoss = new bigBoss("Amaaaaaaazing", 0, 0);
 
 	// stats
@@ -100,18 +105,19 @@ class GamePanel extends JPanel implements KeyListener, MouseListener, ActionList
 	public GamePanel(JFrame frame) throws IOException {
 		setSize(700, 930);
 		getUsername();
+		highScore(); 
 		this.frame = frame;
 		starList = genScrollStars(450);
 		keys = new boolean[KeyEvent.KEY_LAST + 1];
 		logo = new ImageIcon("logo.png").getImage();
 		ship1 = new ImageIcon("ship1.gif").getImage();
-		ship2 = new ImageIcon("C:\\Users\\kkyyh\\eclipse-workspace\\School 17-18\\src\\FSE\\images\\sprites\\ship2.gif")
+		ship2 = new ImageIcon("ship2.gif")
 				.getImage();
 		ship3 = new ImageIcon("ship3.gif").getImage();
-		ship4 = new ImageIcon("C:\\Users\\kkyyh\\eclipse-workspace\\School 17-18\\src\\FSE\\images\\sprites\\ship4.gif")
+		ship4 = new ImageIcon("ship4.gif")
 				.getImage();
 		ship5 = new ImageIcon("ship5.gif").getImage();
-		shot2 = new ImageIcon("C:\\Users\\kkyyh\\eclipse-workspace\\School 17-18\\src\\FSE\\images\\sprites\\shot2.png")
+		shot2 = new ImageIcon("shot2.png")
 				.getImage();
 		initEnemies();
 		addKeyListener(this);
@@ -170,7 +176,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener, ActionList
 
 	public int randY(int level) {// returns a random y value above the screen
 		Random rand = new Random();
-		return -50 - rand.nextInt((int) (226 + Math.pow(1.2, level)));
+		return -50 - rand.nextInt((int) (226 * Math.pow(1.2, level)));
 	}
 
 	public void addEnemy(enemy n) {
@@ -185,7 +191,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener, ActionList
 
 		Scanner stdin = new Scanner(System.in);
 		Scanner inFile = new Scanner(new BufferedReader(// scanning and opening the word textfile
-				new FileReader("C:\\Users\\kkyyh\\eclipse-workspace\\School 17-18\\src\\FSE\\files\\words.txt")));
+				new FileReader("words.txt")));
 		while (inFile.hasNextLine()) {// while theres more to read
 			String word = inFile.nextLine();
 			if (isAlpha(word)) {// checking if theres any special characters
@@ -592,8 +598,6 @@ class GamePanel extends JPanel implements KeyListener, MouseListener, ActionList
 			}
 		else if (screen == "Instructions")
 			instructions(g);
-		else if (screen == "High Scores")
-			hsScreen(g);
 		else if (screen == "next")
 			next(g);
 		else if (screen == "end") {
@@ -609,13 +613,13 @@ class GamePanel extends JPanel implements KeyListener, MouseListener, ActionList
 		g.fillRect(0, 0, 700, 930);
 		g.setFont(menuFont);
 		moveStars(starList, g);
-		String[] values = { "Play Game", "Instructions", "High Scores", "Quit" };
+		String[] values = { "Play Game", "Instructions", "Quit" };
 		g.setColor(Color.white);
 		// test.move();
 		// g.fillRect(test.hitbox.x, test.hitbox.y, test.hitbox.width,
 		// test.hitbox.height);
 		// activeTarget.move();
-		for (int i = 0; i < 4; i++) {
+		for (int i = 0; i < 3; i++) {
 			buttons[i] = new button(220, 330 + 80 * i, 280, 60, values[i]);
 			g.fillRect(buttons[i].x, buttons[i].y, buttons[i].width, buttons[i].height);
 		}
@@ -623,8 +627,10 @@ class GamePanel extends JPanel implements KeyListener, MouseListener, ActionList
 		g.setColor(Color.black);
 		g.drawString("PLAY GAME", 240, 375);
 		g.drawString("INSTRUCTIONS", 228, 455);
-		g.drawString("HIGH SCORES", 235, 535);
-		g.drawString("QUIT", 315, 615);
+		g.drawString("QUIT", 315, 535);
+		g.setColor(Color.white);
+		g.setFont(menuFont);
+		g.drawString("HIGH SCORE: "+highestScore, 215,315);
 	}
 
 	public void createEnemyBullets() {
@@ -680,8 +686,6 @@ class GamePanel extends JPanel implements KeyListener, MouseListener, ActionList
 			}
 
 			g.drawImage(ship2, 317, 820, this);
-			g.setColor(Color.red);
-			g.fillRect(317, 820, 64, 55);
 			if (levelFinish) {
 				makeEnemies();
 			}
@@ -708,8 +712,6 @@ class GamePanel extends JPanel implements KeyListener, MouseListener, ActionList
 					enemy n = it.next();
 					// check= new Rectangle2D.Double(n.getX()-29,n.getY()-29,58,58);
 					n.move();
-					g.setColor(Color.red);
-					g.fillRect(n.getX(), n.getY(), 58, 58);
 					if (ship.intersects(n.getX(), n.getY(), 58, 58)) {
 						it.remove();
 						lives -= 1;
@@ -731,6 +733,24 @@ class GamePanel extends JPanel implements KeyListener, MouseListener, ActionList
 					attack.getOwner().getAttacks().remove(attack);
 				}
 			}
+			
+			if (activeTarget!=null){
+				if (activeTarget.isBullet()){
+					if (newBullet){
+						bulletRad--;
+						bulletTarget.setRad(bulletRad);
+						drawTarget(g, bulletRad, activeTarget);
+						if (bulletRad == 0) {
+							newBullet = false;
+							bulletRad = 100;
+							dead.add(activeTarget);
+							score += activeTarget.getScore() * level;
+							activeTarget = null;
+						}
+					}
+				}
+			}
+				
 
 			if (activeTarget != null) {
 				if (newTarget) {
@@ -741,13 +761,14 @@ class GamePanel extends JPanel implements KeyListener, MouseListener, ActionList
 						newTarget = false;
 						targetRad = 100;
 					}
+				
 				}
 
 				g.setColor(Color.red);
 				g.drawLine(activeTarget.getX() + 29, activeTarget.getY() + 29, activeTarget.getX() + 29,
 						activeTarget.getY() + 29);
 
-				if (activeTarget.getValue().equals("")) {// if we finished typing that enemies word
+				if (activeTarget.getValue().equals("") && activeTarget.isBullet()==false) {// if we finished typing that enemies word
 					// "chewbacca"
 					dead.add(activeTarget);
 					score += activeTarget.getScore() * level;
@@ -827,6 +848,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener, ActionList
 			}
 
 			if (filledEnemies < 1) {
+				score+= level*100; 
 				bombing = false;
 				bombRad = 0;
 				emps = 2;
@@ -836,7 +858,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener, ActionList
 				newTarget = true;
 				dead.clear();
 				level += 1;
-				screen = "next";
+				screen = "next";			
 			}
 		} else {
 			g.setColor(new Color(255, 255, 255, 1));
@@ -873,22 +895,40 @@ class GamePanel extends JPanel implements KeyListener, MouseListener, ActionList
 
 	public void drawTarget(Graphics g, int rad, enemy e) {// super simple, just drawing an oval
 		g.setColor(Color.orange);
-		g.drawOval(e.getX() - rad + 28, e.getY() - rad + 28, rad * 2, rad * 2);
+		if (e.isBullet()){
+			g.drawOval(e.getX() - rad, e.getY() - rad, rad * 2, rad * 2);
+		}
+		else{
+			g.drawOval(e.getX() - rad + 28, e.getY() - rad + 28, rad * 2, rad * 2);
+		}
+		
 	}
 
 	public void instructions(Graphics g) {
-		g.setColor(Color.blue);
+		g.setColor(Color.black);
 		g.fillRect(0, 0, 700, 930);
-	}
-
-	public void hsScreen(Graphics g) {
-		g.setColor(Color.yellow);
-		g.fillRect(0, 0, 700, 930);
+		g.setColor(Color.white);
+		g.setFont(menuFont);
+		g.drawString("INSTRUCTIONS", 230,40);
+		g.drawString("1. Type the words shown on", 10, 100);
+		g.drawString("screen to destroy the enemies", 10, 140);
+		g.drawString("2. Once targeted on an enemy", 10, 200);
+		g.drawString("press BACKSPACE to reset", 10, 240);
+		g.drawString("3. Press SPACE to activate ", 10, 300);
+		g.drawString("EMP which kills enemies in a", 10, 340);
+		g.drawString("small radius", 10, 380);
 	}
 
 	public void endScreen(Graphics g) {
-		g.setColor(Color.yellow);
+		g.setColor(Color.black);
 		g.fillRect(0, 0, 700, 930);
+		g.setColor(Color.red);
+		g.setFont(big);
+		g.drawString("GAME OVER",180,200);
+		g.setColor(Color.white);
+		g.setFont(menuFont);
+		g.drawString("HIGH SCORE: "+highestScore, 200,300);
+		g.drawString("YOUR SCORE: "+score, 200, 340);
 	}
 
 	public void explode(Graphics g, enemy n) {
@@ -1005,6 +1045,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener, ActionList
 					if (b.getValue().length() > 0) {
 						if (b.getValue().charAt(0) == n) {
 							// it.remove();
+							newBullet=true; 
 							bulletKilled = true;
 							activeTarget = b;
 							activeTarget.remove();
@@ -1240,15 +1281,15 @@ class GamePanel extends JPanel implements KeyListener, MouseListener, ActionList
 
 	public void highScore() throws IOException, NumberFormatException {
 		BufferedReader scoreFile = new BufferedReader(
-				new FileReader("C:\\Users\\kkyyh\\eclipse-workspace\\School 17-18\\src\\FSE\\files\\highscore.txt"));
+				new FileReader("highscore.txt"));
 		String line = scoreFile.readLine();
 		String[] scoreParts = line.split(": ");
-		System.out.println(scoreParts[0] + scoreParts[1]);
-		int highestScore = Integer.parseInt(scoreParts[1]);
+		//System.out.println(scoreParts[0] + scoreParts[1]);
+		highestScore = Integer.parseInt(scoreParts[1]);
 		scoreFile.close();
 
 		BufferedWriter scoreFile2 = new BufferedWriter(
-				new FileWriter("C:\\Users\\kkyyh\\eclipse-workspace\\School 17-18\\src\\FSE\\files\\highscore.txt"));
+				new FileWriter("highscore.txt"));
 
 		if (score > highestScore) {
 			highestScore = score;
