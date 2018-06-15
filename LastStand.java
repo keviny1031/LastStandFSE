@@ -109,15 +109,15 @@ class GamePanel extends JPanel implements KeyListener, MouseListener, ActionList
 		this.frame = frame;
 		starList = genScrollStars(450);
 		keys = new boolean[KeyEvent.KEY_LAST + 1];
-		logo = new ImageIcon("logo.png").getImage();
+		logo = new ImageIcon("C:\\Users\\kkyyh\\eclipse-workspace\\School 17-18\\src\\FSE\\images\\icons\\logo.png").getImage();
 		ship1 = new ImageIcon("ship1.gif").getImage();
-		ship2 = new ImageIcon("ship2.gif")
+		ship2 = new ImageIcon("C:\\Users\\kkyyh\\eclipse-workspace\\School 17-18\\src\\FSE\\images\\sprites\\ship2.gif")
 				.getImage();
 		ship3 = new ImageIcon("ship3.gif").getImage();
-		ship4 = new ImageIcon("ship4.gif")
+		ship4 = new ImageIcon("C:\\Users\\kkyyh\\eclipse-workspace\\School 17-18\\src\\FSE\\images\\sprites\\ship4.gif")
 				.getImage();
 		ship5 = new ImageIcon("ship5.gif").getImage();
-		shot2 = new ImageIcon("shot2.png")
+		shot2 = new ImageIcon("C:\\Users\\kkyyh\\eclipse-workspace\\School 17-18\\src\\FSE\\images\\sprites\\shot2.png")
 				.getImage();
 		initEnemies();
 		addKeyListener(this);
@@ -191,7 +191,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener, ActionList
 
 		Scanner stdin = new Scanner(System.in);
 		Scanner inFile = new Scanner(new BufferedReader(// scanning and opening the word textfile
-				new FileReader("words.txt")));
+				new FileReader("C:\\Users\\kkyyh\\eclipse-workspace\\School 17-18\\src\\FSE\\files\\words.txt")));
 		while (inFile.hasNextLine()) {// while theres more to read
 			String word = inFile.nextLine();
 			if (isAlpha(word)) {// checking if theres any special characters
@@ -860,9 +860,18 @@ class GamePanel extends JPanel implements KeyListener, MouseListener, ActionList
 				level += 1;
 				screen = "next";			
 			}
-		} else {
-			g.setColor(new Color(255, 255, 255, 1));
+		} 
+		
+		else {
+			g.setColor(Color.black);
 			g.fillRect(0, 0, 700, 930);
+			moveStars(starList, g);
+			g.setFont(menuFont);
+			g.setColor(Color.red);
+			g.drawString("GAME PAUSED", 215, 100);
+			g.setColor(Color.white);
+			g.setFont(labelFont);
+			g.drawString("Press ESC to unpause", 135, 300);
 		}
 	}
 
@@ -872,9 +881,9 @@ class GamePanel extends JPanel implements KeyListener, MouseListener, ActionList
 		String gameHeader = "Game Stats                        Accuracy";
 		String gameLine = "__";
 		String gameStats = round(((double) (counter - wrong) / counter) * 100, 2) + "%";
-
 		g.setColor(Color.black);
 		g.fillRect(0, 0, 700, 930);
+		moveStars(starList, g);
 		g.setColor(Color.white);
 		g.setFont(menuFont);
 		// g.drawString(levelHeader, 50, 50);
@@ -907,6 +916,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener, ActionList
 	public void instructions(Graphics g) {
 		g.setColor(Color.black);
 		g.fillRect(0, 0, 700, 930);
+		moveStars(starList, g);
 		g.setColor(Color.white);
 		g.setFont(menuFont);
 		g.drawString("INSTRUCTIONS", 230,40);
@@ -917,11 +927,13 @@ class GamePanel extends JPanel implements KeyListener, MouseListener, ActionList
 		g.drawString("3. Press SPACE to activate ", 10, 300);
 		g.drawString("EMP which kills enemies in a", 10, 340);
 		g.drawString("small radius", 10, 380);
+		g.drawString("4. Press ESC to pause screen ", 10, 440);
 	}
 
 	public void endScreen(Graphics g) {
 		g.setColor(Color.black);
 		g.fillRect(0, 0, 700, 930);
+		moveStars(starList, g);
 		g.setColor(Color.red);
 		g.setFont(big);
 		g.drawString("GAME OVER",180,200);
@@ -1048,7 +1060,11 @@ class GamePanel extends JPanel implements KeyListener, MouseListener, ActionList
 							newBullet=true; 
 							bulletKilled = true;
 							activeTarget = b;
+							attack newAttack = new attack(activeTarget.getX() + 2, activeTarget.getY());
+							newAttack.setOwner(activeTarget);
+							this.b.add(newAttack);
 							activeTarget.remove();
+							counter++;
 							break;
 						}
 					}
@@ -1120,6 +1136,12 @@ class GamePanel extends JPanel implements KeyListener, MouseListener, ActionList
 							inScreen = true;
 						}
 					}
+				}
+			}
+			
+			for (enemy b : bullets) {
+				if (b.getY() > -70 && b.getX() > 0 && b.getX() < 700) {
+					inScreen = true;
 				}
 			}
 			// calls typing for each letter value
@@ -1203,16 +1225,22 @@ class GamePanel extends JPanel implements KeyListener, MouseListener, ActionList
 					typing('z');
 				}
 			}
-
-			if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
-				paused = !paused;
-			}
+			
 			if (e.getKeyCode() == KeyEvent.VK_SPACE) {
 				if (!bombing && emps > 0) {
 					emps--;
 					bombing = true;
 					bombRad = 0;
 				}
+			}
+		}
+		
+		if (e.getKeyCode() == KeyEvent.VK_ESCAPE) {
+			if (screen == "Play Game") {
+				paused = !paused;
+			}
+			if (screen == "Instructions" || screen == "end") {
+				screen = "menu";
 			}
 		}
 	}
@@ -1281,7 +1309,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener, ActionList
 
 	public void highScore() throws IOException, NumberFormatException {
 		BufferedReader scoreFile = new BufferedReader(
-				new FileReader("highscore.txt"));
+				new FileReader("C:\\Users\\kkyyh\\eclipse-workspace\\School 17-18\\src\\FSE\\files\\highscore.txt"));
 		String line = scoreFile.readLine();
 		String[] scoreParts = line.split(": ");
 		//System.out.println(scoreParts[0] + scoreParts[1]);
@@ -1289,7 +1317,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener, ActionList
 		scoreFile.close();
 
 		BufferedWriter scoreFile2 = new BufferedWriter(
-				new FileWriter("highscore.txt"));
+				new FileWriter("C:\\Users\\kkyyh\\eclipse-workspace\\School 17-18\\src\\FSE\\files\\highscore.txt"));
 
 		if (score > highestScore) {
 			highestScore = score;
