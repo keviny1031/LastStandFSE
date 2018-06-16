@@ -81,7 +81,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener, ActionList
 	private Timer timer;
 
 	@SuppressWarnings("unchecked")
-	private int level = 1, bombRad, filledEnemies;
+	private int level = 7, bombRad, filledEnemies;
 	private int targetRad = 100;
 	private int bulletRad = 100;
 	private boolean levelFinish = false, bombing, enemyShoot = false, paused = false;
@@ -108,12 +108,12 @@ class GamePanel extends JPanel implements KeyListener, MouseListener, ActionList
 		this.frame = frame;
 		starList = genScrollStars(450);
 		keys = new boolean[KeyEvent.KEY_LAST + 1];
-		logo = new ImageIcon("images\\icons\\logo.png").getImage();
-		ship2 = new ImageIcon("images\\sprites\\ship2.gif")
+		logo = new ImageIcon("logo.png").getImage();
+		ship2 = new ImageIcon("ship2.gif")
 				.getImage();
-		ship4 = new ImageIcon("images\\sprites\\ship4.gif")
+		ship4 = new ImageIcon("ship4.gif")
 				.getImage();
-		shot2 = new ImageIcon("images\\sprites\\shot2.png")
+		shot2 = new ImageIcon("shot2.png")
 				.getImage();
 		addKeyListener(this);
 		addMouseListener(this);
@@ -186,7 +186,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener, ActionList
 
 		Scanner stdin = new Scanner(System.in);
 		Scanner inFile = new Scanner(new BufferedReader(// scanning and opening the word textfile
-				new FileReader("files\\words.txt")));
+				new FileReader("words.txt")));
 		while (inFile.hasNextLine()) {// while theres more to read
 			String word = inFile.nextLine();
 			if (isAlpha(word)) {// checking if theres any special characters
@@ -641,14 +641,15 @@ class GamePanel extends JPanel implements KeyListener, MouseListener, ActionList
 			for (int i = 0; i < 2; i++) {//creating 2 bullets and origin is a random enemy
 				enemy origin = allOptions.get(rand.nextInt(allOptions.size()));
 				int random = (int) (rand.nextInt((characters.length)));
-				bullets.add(new enemy(Character.toString(characters[random]), origin.getX(), origin.getY()));
+				bullets.add(new enemy("m", origin.getX(), origin.getY()));
 				allOptions.remove(origin);
+				//Character.toString(characters[random])
 			}
 		} else {//less than 3 enemies
 			for (int i = 0; i < allOptions.size(); i++) {//creating 2 bullets and origin is a random enemy
 				enemy origin = allOptions.get(rand.nextInt(allOptions.size()));
 				int random = (int) (rand.nextInt((characters.length)));
-				bullets.add(new enemy(Character.toString(characters[random]), origin.getX(), origin.getY()));
+				bullets.add(new enemy("m", origin.getX(), origin.getY()));
 				allOptions.remove(origin);
 			}
 		}
@@ -1042,6 +1043,28 @@ class GamePanel extends JPanel implements KeyListener, MouseListener, ActionList
 		long tmp = Math.round(value);
 		return (double) tmp / factor;
 	}
+	
+	public enemy getLowestBullet(char a){
+		int max = 0;// setting a base max y value
+		enemy checker = bullets.get(0); 
+		ArrayList<enemy> checking = new ArrayList<enemy>();
+		for (Iterator<enemy> it = bullets.iterator(); it.hasNext();) {
+			enemy n = it.next();
+			if (n.getValue().charAt(0)==a){
+				checking.add(n);
+			}
+		}
+		
+		for (enemy x : checking){
+			if (x.getY()>max){
+				max = x.getY();
+				checker = x;
+			}
+		}
+		
+		return checker; 
+			
+	}
 
 	public enemy getLowest(LinkedList<enemy> n) {// takes in LL as parameter
 		int max = n.get(0).getY();// setting a base max y value
@@ -1097,7 +1120,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener, ActionList
 							// it.remove();
 							newBullet=true;
 							bulletKilled = true;
-							activeTarget = b;
+							activeTarget = getLowestBullet(n);
 							attack newAttack = new attack(activeTarget.getX() + 2, activeTarget.getY());
 							newAttack.setOwner(activeTarget);
 							this.b.add(newAttack);
@@ -1307,7 +1330,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener, ActionList
 					screen = button.getVal();
 					if (screen == "Play Game") {
 						System.out.println("hi");
-						level = 1;
+						level = 7;
 						try {
 							initEnemies();
 						} catch (IOException e1) {
@@ -1389,7 +1412,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener, ActionList
 
 	public void highScore() throws IOException, NumberFormatException {
 		BufferedReader scoreFile = new BufferedReader(
-				new FileReader("files\\highscore.txt"));
+				new FileReader("highscore.txt"));
 		String line = scoreFile.readLine();
 		String[] scoreParts = line.split(": ");
 		highestUser = scoreParts[0];
@@ -1397,7 +1420,7 @@ class GamePanel extends JPanel implements KeyListener, MouseListener, ActionList
 		scoreFile.close();
 
 		BufferedWriter scoreFile2 = new BufferedWriter(
-				new FileWriter("files//highscore.txt"));
+				new FileWriter("highscore.txt"));
 
 		if (score > highestScore) {
 			highestScore = score;
